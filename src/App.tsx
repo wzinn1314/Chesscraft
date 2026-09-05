@@ -103,9 +103,9 @@ export const App: React.FC = () => {
       {showWelcome ? (
         <WelcomeScreen onWelcome={handleWelcome} />
       ) : (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#121214', color: '#ffffff' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#121214', color: '#ffffff', width: '100%', overflow: 'hidden' }}>
           <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
-          <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+          <main style={{ flex: 1, minWidth: 0, height: '100vh', padding: '32px', overflowY: 'auto', boxSizing: 'border-box' }}>
             <Header playerName={playerName} />
             {currentTab === 'dashboard' && (
               <DashboardHome playerName={playerName} onSelectMode={handleSelectTab} />
