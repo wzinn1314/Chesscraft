@@ -194,7 +194,7 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
         <Chessboard
           position={fen}
           onPieceDrop={handlePieceDrop}
-          boardOrientation={myColor === 'w' ? 'white' : 'black'}
+          boardOrientation="white"
           arePiecesDraggable={isMyTurn && !isGameOver}
           customBoardStyle={{
             borderRadius: '8px',

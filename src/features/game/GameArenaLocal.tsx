@@ -20,6 +20,7 @@ export const GameArenaLocal: React.FC = () => {
           <Chessboard 
             position={fen} 
             onPieceDrop={handlePieceDrop}
+            boardOrientation="white"
             customBoardStyle={{ borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}
           />
         </div>
