@@ -29,7 +29,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onWelcome }) => {
     <div className="welcome-overlay">
       <div className="welcome-card">
         <div className="welcome-header">
-          {/* Main logo with game name replaces pawn and title */}
+          {/* Main logo */}
           <img src={mainLogo} alt="ChessCraft Logo" className="logo logo--welcome-main" />
         </div>
 

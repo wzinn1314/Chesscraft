@@ -242,23 +242,24 @@ code {
 .logo--welcome { box-sizing: border-box; height: auto; width: auto; object-fit: contain; display: block; background: transparent; }
 
 /* Default small logo (icon-like) */
-.logo { width: clamp(64px, 8vw, 160px); height: auto; }
+.logo { width: clamp(48px, 6vw, 120px); height: auto; }
 
 /* Header logo grows with viewport but stays bounded */
-.logo--header { width: clamp(96px, 10vw, 280px); height: auto; }
+.logo--header { width: clamp(72px, 10vw, 200px); height: auto; }
 
 /* Sidebar logo slightly smaller than header on wide screens */
-.logo--sidebar { width: clamp(72px, 8vw, 220px); height: auto; }
+.logo--sidebar { width: clamp(56px, 8vw, 160px); height: auto; }
 
 /* Welcome small logo (if used) */
-.logo--welcome { width: clamp(120px, 20vw, 320px); height: auto; }
+.logo--welcome { width: clamp(90px, 16vw, 240px); height: auto; }
 
 /* Main/wide welcome logo that should scale with screen */
 .logo--welcome-main {
-  width: clamp(260px, 48vw, 900px);
+  width: clamp(180px, 35vw, 600px);
   height: auto;
   max-width: 100%;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
 /* smooth resize transitions and prevent stretching */
@@ -267,12 +268,18 @@ code {
   max-height: 100%;
 }
 
+/* Logo hover effect */
+.logo:hover, .logo--header:hover, .logo--sidebar:hover {
+  transform: scale(1.05);
+  transition: transform 180ms ease;
+}
+
 /* Tweak for very small screens to avoid overflow */
 @media (max-width: 420px) {
-  .logo { width: clamp(56px, 12vw, 96px); }
-  .logo--header { width: clamp(64px, 16vw, 140px); }
-  .logo--sidebar { width: clamp(56px, 14vw, 120px); }
-  .logo--welcome-main { width: clamp(140px, 60vw, 260px); }
+  .logo { width: clamp(40px, 10vw, 80px); }
+  .logo--header { width: clamp(56px, 14vw, 120px); }
+  .logo--sidebar { width: clamp(48px, 12vw, 100px); }
+  .logo--welcome-main { width: clamp(120px, 50vw, 220px); }
 }
 .welcome-header {
   margin-bottom: 18px;
@@ -719,5 +726,134 @@ code {
 @media (max-width: 900px) {
   .arena { grid-template-columns: 1fr; }
   .app-main { padding: 20px 16px 36px; }
+}
+
+/* Tournament cards responsiveness */
+@media (max-width: 768px) {
+  .tournaments-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .tournaments-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 1920px) {
+  .app-main { padding: 32px 48px 56px; }
+  .sidebar { width: 280px; padding: 32px 20px; }
+  .arena { gap: 36px; }
+}
+
+/* Tablet improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar { width: 200px; padding: 20px 12px; }
+  .app-main { padding: 24px 20px 40px; }
+  .brand--side { padding: 0 4px 20px; }
+  .nav-item { padding: 10px 12px; font-size: 13px; }
+}
+
+/* Small mobile improvements */
+@media (max-width: 480px) {
+  .mobile-bar { height: 56px; padding: 0 12px; }
+  .mobile-drawer { width: 260px; top: 56px; }
+  .mobile-spacer { height: 56px; }
+  .brand strong { font-size: 16px; }
+  .brand span { font-size: 11px; }
+}
+
+/* Ultra small mobile */
+@media (max-width: 360px) {
+  .mobile-bar { height: 52px; padding: 0 10px; }
+  .mobile-drawer { width: 240px; top: 52px; }
+  .mobile-spacer { height: 52px; }
+  .brand strong { font-size: 14px; }
+  .nav-item { padding: 10px 12px; font-size: 13px; }
+}
+
+/* Improved sidebar responsiveness */
+@media (max-width: 1024px) {
+  .sidebar { width: 200px; }
+  .brand--side { padding: 0 8px 20px; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+}
+
+/* Panel responsiveness */
+@media (max-width: 768px) {
+  .panel { padding: 16px; border-radius: 12px; }
+  .panel h3 { font-size: 15px; }
+}
+
+/* Button responsiveness */
+@media (max-width: 480px) {
+  .btn-primary, .btn.btn-primary { padding: 10px; font-size: 14px; }
+  .btn-ghost, .btn.btn-ghost { padding: 8px 12px; font-size: 13px; }
+}
+
+/* Card responsiveness */
+@media (max-width: 768px) {
+  .status-card { padding: 24px 20px; margin: 16px auto; }
+}
+
+/* Clock row responsiveness */
+@media (max-width: 480px) {
+  .clock-row { padding: 8px 12px; }
+  .clock-row strong { font-size: 18px; }
+}
+
+/* Promotion overlay responsiveness */
+@media (max-width: 480px) {
+  .promotion-card { padding: 12px; width: 95%; }
+  .promotion-option { padding: 10px 6px; font-size: 14px; }
+}
+
+/* Turn chip responsiveness */
+@media (max-width: 480px) {
+  .turn-chip { padding: 6px 10px; font-size: 12px; }
+}
+
+/* Move list responsiveness */
+@media (max-width: 480px) {
+  .move-list { font-size: 12px; max-height: 180px; }
+  .move-list li { grid-template-columns: 24px 1fr 1fr; gap: 6px; }
+}
+
+/* Topbar responsiveness */
+@media (max-width: 768px) {
+  .topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topbar-user { align-self: flex-end; }
+}
+
+@media (max-width: 480px) {
+  .topbar-title { font-size: 13px; }
+  .topbar-sub { font-size: 12px; }
+  .topbar-user { font-size: 13px; padding: 6px 10px; }
+}
+
+/* Welcome screen responsiveness improvements */
+@media (max-width: 480px) {
+  .welcome-input { padding: 12px 14px; font-size: 15px; }
+  .welcome-button { padding: 12px 14px; font-size: 15px; }
+}
+
+@media (max-width: 360px) {
+  .welcome-input { padding: 10px 12px; font-size: 14px; }
+  .welcome-button { padding: 10px 12px; font-size: 14px; }
+}
+
+/* Hint note responsiveness */
+@media (max-width: 480px) {
+  .hint-note { padding: 8px 10px; font-size: 12px; }
+}
+
+/* Result/Check banner responsiveness */
+@media (max-width: 480px) {
+  .result-banner, .check-banner { padding: 10px 12px; font-size: 13px; }
 }
 

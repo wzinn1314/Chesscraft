@@ -11,6 +11,7 @@ const menuItems = [
   { id: 'vs-online', label: 'Online' },
   { id: 'vs-computer', label: 'Computador' },
   { id: 'puzzles', label: 'Puzzles' },
+  { id: 'tournaments', label: 'Torneios' },
   { id: 'settings', label: 'Ajustes' },
 ];
 

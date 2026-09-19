@@ -26,6 +26,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['chess.js', 'react-chessboard', 'firebase'],
+    include: ['chess.js', 'react-chessboard'],
   },
 })

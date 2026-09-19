@@ -13,6 +13,7 @@ const GameArenaLocal = lazy(() => import('./features/game/GameArenaLocal'));
 const LobbyModal = lazy(() => import('./features/multiplayer/LobbyModal'));
 const OnlineGame = lazy(() => import('./features/multiplayer/OnlineGame'));
 const PuzzlesArena = lazy(() => import('./features/puzzles/PuzzleArena'));
+const Tournaments = lazy(() => import('./features/tournaments/Tournaments'));
 
 export interface BotOpponent {
   id: number;
@@ -124,6 +125,7 @@ export const App: React.FC = () => {
                 />
               )}
               {currentTab === 'puzzles' && <PuzzlesArena />}
+              {currentTab === 'tournaments' && <Tournaments />}
               {currentTab === 'vs-online' && onlineGameConfig && (
                 <div>
                   <button
