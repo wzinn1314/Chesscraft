@@ -87,7 +87,7 @@ const BOTS_LIST: BotOpponent[] = [
     desc: "Perfeição matemática. Calcula milhões de lances sem cometer erros.",
     avatar: 'CM',
     color: "#e74c3c",
-    difficulty: "master"
+    difficulty: "expert"
   }
 ];
 
