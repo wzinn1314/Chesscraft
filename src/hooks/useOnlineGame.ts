@@ -64,7 +64,10 @@ export const useOnlineGame = (
   };
 
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId || !database) {
+      setGameStatus('playing');
+      return;
+    }
 
     const gameRef = ref(database, `rooms/${roomId}`);
 
@@ -163,8 +166,12 @@ export const useOnlineGame = (
 
   const makeMove = useCallback(
     (move: MovePayload): boolean => {
+
       const assignedColor = myColorRef.current;
       if (!roomId || isGameOver || !assignedColor) return false;
+
+      if (!roomId || isGameOver || !database) return false;
+
 
       const currentGame = chessRef.current;
       if (currentGame.turn() !== assignedColor) return false;
