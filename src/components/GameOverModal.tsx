@@ -4,6 +4,7 @@ import type { RecordedGameOutcome } from '../service/userService';
 interface GameOverModalProps {
   outcome: RecordedGameOutcome;
   opponentName: string;
+  resultSummary?: string;
   gameOverReason?: string;
   onHome: () => void;
   onPlayAgain?: () => void;
@@ -33,6 +34,7 @@ const copy: Record<
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   outcome,
   opponentName,
+  resultSummary,
   gameOverReason,
   onHome,
   onPlayAgain,
@@ -71,7 +73,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           {title}
         </h2>
         <p style={{ margin: '0 0 20px 0', color: '#bab4ab', fontSize: '14px' }}>
-          vs. {opponentName} · {ui.subtitle}
+          {resultSummary ?? `vs. ${opponentName}`} · {ui.subtitle}
         </p>
         {gameOverReason && <p style={{ margin: '-10px 0 20px', color: '#f3efe6', fontWeight: 700 }}>{gameOverReason}</p>}
 

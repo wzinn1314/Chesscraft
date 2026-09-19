@@ -15,7 +15,8 @@ export const useOnlineGame = (
   roomId: string,
   isCreator: boolean = false,
   creatorColor: 'w' | 'b' = 'w',
-  customInitialTime: number = 300
+  customInitialTime: number = 300,
+  playerName: string = 'Jogador',
 ) => {
   const [fen, setFen] = useState<string>('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
   const [turn, setTurn] = useState<'w' | 'b'>('w');
@@ -29,6 +30,8 @@ export const useOnlineGame = (
   const [whiteTime, setWhiteTime] = useState<number>(customInitialTime);
   const [blackTime, setBlackTime] = useState<number>(customInitialTime);
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
+  const [whitePlayerName, setWhitePlayerName] = useState('Brancas');
+  const [blackPlayerName, setBlackPlayerName] = useState('Pretas');
 
   const chessRef = useRef<Chess>(new Chess());
   const myColorRef = useRef<'w' | 'b' | null>(isCreator ? creatorColor : null);
@@ -95,6 +98,9 @@ export const useOnlineGame = (
           lockColor(isCreator ? roomCreatorColor : oppositeColor(roomCreatorColor));
         }
 
+        if (typeof data.players?.w === 'string') setWhitePlayerName(data.players.w);
+        if (typeof data.players?.b === 'string') setBlackPlayerName(data.players.b);
+
         if (typeof data.whiteTime === 'number') {
           whiteTimeRef.current = data.whiteTime;
           setWhiteTime(data.whiteTime);
@@ -109,7 +115,8 @@ export const useOnlineGame = (
         }
 
         if (!isCreator && data.status === 'waiting') {
-          update(gameRef, { status: 'playing' });
+          const joiningColor = oppositeColor(roomCreatorColor ?? creatorColor);
+          update(gameRef, { status: 'playing', [`players/${joiningColor}`]: playerName });
         }
       } else if (isCreator && !createdRoomRef.current) {
         createdRoomRef.current = true;
@@ -118,6 +125,7 @@ export const useOnlineGame = (
           turn: 'w',
           status: 'waiting',
           creatorColor,
+          players: { [creatorColor]: playerName },
           whiteTime: customInitialTime,
           blackTime: customInitialTime,
           updatedAt: Date.now(),
@@ -129,7 +137,7 @@ export const useOnlineGame = (
     });
 
     return () => unsubscribe();
-  }, [roomId, isCreator, creatorColor, customInitialTime]);
+  }, [roomId, isCreator, creatorColor, customInitialTime, playerName]);
 
   useEffect(() => {
     if (gameStatus !== 'playing' || isGameOver || !roomId) return;
@@ -236,6 +244,8 @@ export const useOnlineGame = (
     whiteTime,
     blackTime,
     lastMove,
+    whitePlayerName,
+    blackPlayerName,
     makeMove,
   };
 };
