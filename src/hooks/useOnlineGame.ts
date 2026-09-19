@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
+import { onValue, ref, set, update } from 'firebase/database';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { database } from '../service/firebase';
-import { ref, set, onValue, update } from 'firebase/database';
 
 interface MovePayload {
   from: string;
   to: string;
   promotion?: string;
 }
+
+const oppositeColor = (color: 'w' | 'b'): 'w' | 'b' => (color === 'w' ? 'b' : 'w');
 
 export const useOnlineGame = (
   roomId: string,
@@ -21,17 +23,31 @@ export const useOnlineGame = (
   const [gameOverReason, setGameOverReason] = useState<string>('');
   const [inCheck, setInCheck] = useState<boolean>(false);
   const [gameStatus, setGameStatus] = useState<'waiting' | 'playing' | 'ended'>('waiting');
-  
-  const [myColor, setMyColor] = useState<'w' | 'b'>(isCreator ? creatorColor : (creatorColor === 'w' ? 'b' : 'w'));
+
+  const [myColor, setMyColor] = useState<'w' | 'b' | null>(isCreator ? creatorColor : null);
+  const [colorReady, setColorReady] = useState<boolean>(isCreator);
   const [whiteTime, setWhiteTime] = useState<number>(customInitialTime);
   const [blackTime, setBlackTime] = useState<number>(customInitialTime);
+  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
 
   const chessRef = useRef<Chess>(new Chess());
+  const myColorRef = useRef<'w' | 'b' | null>(isCreator ? creatorColor : null);
+  const colorLockedRef = useRef<boolean>(isCreator);
+  const whiteTimeRef = useRef(customInitialTime);
+  const blackTimeRef = useRef(customInitialTime);
+  const createdRoomRef = useRef(false);
 
-  // Atualiza estado local de xeque / fim de jogo
+  const lockColor = (color: 'w' | 'b') => {
+    if (colorLockedRef.current && myColorRef.current === color) return;
+    if (colorLockedRef.current) return;
+    myColorRef.current = color;
+    colorLockedRef.current = true;
+    setMyColor(color);
+    setColorReady(true);
+  };
+
   const updateGameFlags = (chess: Chess, statusOverride?: string) => {
-    const isCheck = chess.inCheck();
-    setInCheck(isCheck);
+    setInCheck(chess.inCheck());
 
     if (chess.isCheckmate()) {
       setIsGameOver(true);
@@ -61,10 +77,10 @@ export const useOnlineGame = (
       if (data && data.fen) {
         try {
           chessRef.current.load(data.fen);
-        } catch (e) {
-          console.error('Erro FEN:', e);
+        } catch {
+          console.error('Erro FEN');
         }
-        
+
         setFen(data.fen);
         setTurn(data.turn || chessRef.current.turn());
         setGameStatus(data.status || 'playing');
@@ -75,17 +91,31 @@ export const useOnlineGame = (
 
         updateGameFlags(chessRef.current, data.status);
 
-        if (!isCreator && data.creatorColor) {
-          setMyColor(data.creatorColor === 'w' ? 'b' : 'w');
+        const roomCreatorColor: 'w' | 'b' | undefined =
+          data.creatorColor === 'w' || data.creatorColor === 'b' ? data.creatorColor : undefined;
+
+        if (roomCreatorColor) {
+          lockColor(isCreator ? roomCreatorColor : oppositeColor(roomCreatorColor));
         }
 
-        if (data.whiteTime !== undefined) setWhiteTime(data.whiteTime);
-        if (data.blackTime !== undefined) setBlackTime(data.blackTime);
+        if (typeof data.whiteTime === 'number') {
+          whiteTimeRef.current = data.whiteTime;
+          setWhiteTime(data.whiteTime);
+        }
+        if (typeof data.blackTime === 'number') {
+          blackTimeRef.current = data.blackTime;
+          setBlackTime(data.blackTime);
+        }
+
+        if (data.lastMove?.from && data.lastMove?.to) {
+          setLastMove({ from: data.lastMove.from, to: data.lastMove.to });
+        }
 
         if (!isCreator && data.status === 'waiting') {
           update(gameRef, { status: 'playing' });
         }
-      } else if (isCreator) {
+      } else if (isCreator && !createdRoomRef.current) {
+        createdRoomRef.current = true;
         set(gameRef, {
           fen: chessRef.current.fen(),
           turn: 'w',
@@ -94,35 +124,39 @@ export const useOnlineGame = (
           whiteTime: customInitialTime,
           blackTime: customInitialTime,
           updatedAt: Date.now(),
-        }).catch((err) => console.error('Erro ao criar:', err));
+        }).catch((err) => {
+          createdRoomRef.current = false;
+          console.error('Erro ao criar:', err);
+        });
       }
     });
 
     return () => unsubscribe();
   }, [roomId, isCreator, creatorColor, customInitialTime]);
 
-  // Cronômetro
   useEffect(() => {
     if (gameStatus !== 'playing' || isGameOver || !roomId) return;
 
     const timer = setInterval(() => {
       if (turn === 'w') {
         setWhiteTime((prev) => {
-          if (prev <= 1) {
+          const next = prev <= 1 ? 0 : prev - 1;
+          whiteTimeRef.current = next;
+          if (next === 0) {
             setIsGameOver(true);
             setGameOverReason('Tempo esgotado! As Pretas venceram.');
-            return 0;
           }
-          return prev - 1;
+          return next;
         });
       } else {
         setBlackTime((prev) => {
-          if (prev <= 1) {
+          const next = prev <= 1 ? 0 : prev - 1;
+          blackTimeRef.current = next;
+          if (next === 0) {
             setIsGameOver(true);
             setGameOverReason('Tempo esgotado! As Brancas venceram.');
-            return 0;
           }
-          return prev - 1;
+          return next;
         });
       }
     }, 1000);
@@ -132,11 +166,15 @@ export const useOnlineGame = (
 
   const makeMove = useCallback(
     (move: MovePayload): boolean => {
+
+      const assignedColor = myColorRef.current;
+      if (!roomId || isGameOver || !assignedColor) return false;
+
       if (!roomId || isGameOver || !database) return false;
 
-      const currentGame = chessRef.current;
 
-      if (currentGame.turn() !== myColor) return false;
+      const currentGame = chessRef.current;
+      if (currentGame.turn() !== assignedColor) return false;
 
       try {
         const result = currentGame.move({
@@ -163,41 +201,48 @@ export const useOnlineGame = (
 
           setFen(newFen);
           setTurn(nextTurn);
+          setLastMove({ from: move.from, to: move.to });
           updateGameFlags(currentGame);
 
-          set(ref(database, `rooms/${roomId}`), {
+          const patch: Record<string, unknown> = {
             fen: newFen,
             turn: nextTurn,
             status: isEnded ? 'ended' : 'playing',
-            gameOverReason: reason,
-            creatorColor,
-            whiteTime,
-            blackTime,
             lastMove: move,
+            whiteTime: whiteTimeRef.current,
+            blackTime: blackTimeRef.current,
             updatedAt: Date.now(),
-          });
+          };
+
+          if (isEnded) {
+            patch.gameOverReason = reason;
+          }
+
+          update(ref(database, `rooms/${roomId}`), patch);
 
           return true;
         }
-      } catch (e) {
+      } catch {
         return false;
       }
 
       return false;
     },
-    [roomId, myColor, creatorColor, whiteTime, blackTime, isGameOver]
+    [roomId, isGameOver]
   );
 
   return {
     fen,
     turn,
-    myColor,
+    myColor: myColor ?? (isCreator ? creatorColor : 'w'),
+    colorReady,
     inCheck,
     gameStatus,
     isGameOver,
     gameOverReason,
     whiteTime,
     blackTime,
+    lastMove,
     makeMove,
   };
 };

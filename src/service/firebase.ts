@@ -1,6 +1,13 @@
+
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
+
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAnalytics, type Analytics } from "firebase/analytics";
 import { getDatabase, type Database } from "firebase/database";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAT-f0NSIHFEaqedp8ErT7ZErMv3cGK1Ws",
@@ -39,4 +46,9 @@ try {
   console.warn('Firebase unavailable in this browser context; app continues in local-only mode.', error);
 }
 
+
+
+export const database = getDatabase(app);
+export const auth = getAuth(app);
 export { analytics, database };
+

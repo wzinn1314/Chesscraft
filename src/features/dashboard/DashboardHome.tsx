@@ -85,7 +85,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
             background: `linear-gradient(135deg, ${theme.colors.surface} 0%, #262420 100%)`
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <div style={{ fontSize: '54px', lineHeight: 1 }}>♟️</div>
+              <div className="brand-mark">CC</div>
               <div>
                 <h1 style={{ color: theme.colors.textPrimary, fontSize: '28px', margin: '0 0 4px 0', fontWeight: 800 }}>
                   Olá, {playerName}
@@ -111,7 +111,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
                   boxShadow: theme.shadows.glow,
                 }}
               >
-                🤖 Jogar vs IA
+                Jogar vs IA
               </button>
               <button
                 onClick={() => onSelectMode('vs-local')}
@@ -126,7 +126,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
                   cursor: 'pointer'
                 }}
               >
-                ⚔️ Passa & Joga
+                Passa e joga
               </button>
             </div>
           </div>
@@ -146,7 +146,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '28px' }}>🧩</span>
+                <span className="card-kicker">Tática</span>
                 <span style={{ color: theme.colors.primary, fontSize: '12px', fontWeight: 700 }}>
                   {stats?.totalGames ?? 0} JOGOS
                 </span>
@@ -171,7 +171,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
               gap: '12px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '28px' }}>📈</span>
+                <span className="card-kicker">Perfil</span>
                 <span style={{ color: theme.colors.primary, fontSize: '12px', fontWeight: 700 }}>
                   {winRate}% WIN
                 </span>
@@ -200,7 +200,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '28px' }}>🤖</span>
+                <span className="card-kicker">Treino</span>
                 <span style={{ color: theme.colors.textMuted, fontSize: '12px', fontWeight: 700 }}>JOGAR</span>
               </div>
               <div>
@@ -237,7 +237,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <div style={{ fontSize: '24px' }}>🤖</div>
+                <div className="card-kicker">IA</div>
                 <div>
                   <div style={{ color: theme.colors.textPrimary, fontWeight: 700, fontSize: '15px' }}>
                     Partida vs Computador
@@ -297,7 +297,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
                 border: `1px solid ${theme.colors.border}`
               }}>
                 <div style={{ color: theme.colors.textMuted, fontSize: '11px', fontWeight: 700, marginBottom: '2px' }}>
-                  ⚡ RATING
+                  RATING
                 </div>
                 <div style={{ color: theme.colors.textPrimary, fontSize: '18px', fontWeight: 800 }}>
                   {rating}
@@ -310,7 +310,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
                 border: `1px solid ${theme.colors.border}`
               }}>
                 <div style={{ color: theme.colors.textMuted, fontSize: '11px', fontWeight: 700, marginBottom: '2px' }}>
-                  🎯 PARTIDAS
+                  PARTIDAS
                 </div>
                 <div style={{ color: theme.colors.primary, fontSize: '18px', fontWeight: 800 }}>
                   {stats?.totalGames ?? 0}

@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { Chess } from 'chess.js';
-import { getAIMove, difficultySettings } from '../utils/chessAI';
+import { useCallback, useState } from 'react';
+import { Chess, type Square } from 'chess.js';
+import { difficultySettings, getAIMove } from '../utils/chessAI';
 
 export const useChessGame = () => {
   const [game, setGame] = useState(new Chess());
@@ -44,7 +44,10 @@ export const useChessGame = () => {
     setGame(new Chess());
   }, []);
 
+  const history = game.history({ verbose: true });
+  const last = history.at(-1);
   const isCheckmate = game.isCheckmate();
+  const isStalemate = game.isStalemate();
   const isDraw = game.isDraw();
   const winner = isCheckmate ? (game.turn() === 'w' ? 'b' : 'w') : null;
 
@@ -53,14 +56,20 @@ export const useChessGame = () => {
     turn: game.turn(),
     isGameOver: game.isGameOver(),
     isCheckmate,
+    isStalemate,
     isDraw,
+    inCheck: game.inCheck(),
     winner,
-    moveCount: game.history().length,
+    moveCount: history.length,
+    lastMove: last ? { from: last.from as Square, to: last.to as Square } : null,
+    moveHistory: game.history(),
     gameResult: isCheckmate
-      ? `Xeque-mate! ${winner === 'w' ? 'Brancas' : 'Pretas'} venceram.`
-      : isDraw
-      ? 'Empate!'
-      : null,
+      ? `Xeque-mate. ${winner === 'w' ? 'Brancas' : 'Pretas'} venceram.`
+      : isStalemate
+        ? 'Empate por afogamento.'
+        : isDraw
+          ? 'Empate.'
+          : null,
     makeMove,
     makeRandomMove,
     makeAIMove,
