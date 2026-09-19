@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase } from "firebase/database"; // 1. Importação do banco de dados
+import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAT-f0NSIHFEaqedp8ErT7ZErMv3cGK1Ws",
@@ -20,5 +21,6 @@ const app = initializeApp(firebaseConfig);
 // Apenas inicializa analytics se estiver rodando no navegador (evita erros em SSR/Node)
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-// 3. EXPORTAÇÃO DO DATABASE (Resolve o erro do import { database })
+// Export database and auth
 export const database = getDatabase(app);
+export const auth = getAuth(app);
