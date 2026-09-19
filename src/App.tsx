@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Settings from './components/Settings';
 import { Sidebar } from './components/Sidebar';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import DashboardHome from './features/dashboard/DashboardHome';
-import GameArenaAI from './features/game/GameArenaIA';
-import GameArenaLocal from './features/game/GameArenaLocal';
-import { LobbyModal } from './features/multiplayer/LobbyModal';
-import OnlineGame from './features/multiplayer/OnlineGame';
-import PuzzlesArena from './features/puzzles/PuzzleArena';
 import { getCache, setCache } from './service/cache';
 import { createOrUpdateUser, loadActiveSession } from './service/userService';
+
+// Lazy loading de componentes pesados
+const DashboardHome = lazy(() => import('./features/dashboard/DashboardHome'));
+const GameArenaAI = lazy(() => import('./features/game/GameArenaIA'));
+const GameArenaLocal = lazy(() => import('./features/game/GameArenaLocal'));
+const LobbyModal = lazy(() => import('./features/multiplayer/LobbyModal'));
+const OnlineGame = lazy(() => import('./features/multiplayer/OnlineGame'));
+const PuzzlesArena = lazy(() => import('./features/puzzles/PuzzleArena'));
 
 export interface BotOpponent {
   id: number;
@@ -107,35 +109,39 @@ export const App: React.FC = () => {
           <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
           <main className="app-main">
             <Header playerName={playerName} />
-            {currentTab === 'dashboard' && (
-              <DashboardHome playerName={playerName} onSelectMode={handleSelectTab} />
-            )}
-            {currentTab === 'settings' && (
-              <Settings playerName={playerName} onSignOut={handleSignOut} currentTheme={theme} setTheme={(t) => applyTheme(t)} />
-            )}
-            {currentTab === 'vs-local' && <GameArenaLocal />}
-            {currentTab === 'vs-computer' && (
-              <GameArenaAI
-                playerName={playerName}
-                onGoHome={() => setCurrentTab('dashboard')}
-              />
-            )}
-            {currentTab === 'puzzles' && <PuzzlesArena />}
-            {currentTab === 'vs-online' && onlineGameConfig && (
-              <div>
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => { setOnlineGameConfig(null); setCurrentTab('dashboard'); }}
-                >
-                  Sair da sala
-                </button>
-                <OnlineGame roomId={onlineGameConfig.roomId} isCreator={onlineGameConfig.isCreator} creatorColor={onlineGameConfig.creatorColor} initialTime={onlineGameConfig.initialTime} />
-              </div>
-            )}
+            <Suspense fallback={<div style={{ color: '#f3efe6', padding: '20px' }}>Carregando...</div>}>
+              {currentTab === 'dashboard' && (
+                <DashboardHome playerName={playerName} onSelectMode={handleSelectTab} />
+              )}
+              {currentTab === 'settings' && (
+                <Settings playerName={playerName} onSignOut={handleSignOut} currentTheme={theme} setTheme={(t) => applyTheme(t)} />
+              )}
+              {currentTab === 'vs-local' && <GameArenaLocal />}
+              {currentTab === 'vs-computer' && (
+                <GameArenaAI
+                  playerName={playerName}
+                  onGoHome={() => setCurrentTab('dashboard')}
+                />
+              )}
+              {currentTab === 'puzzles' && <PuzzlesArena />}
+              {currentTab === 'vs-online' && onlineGameConfig && (
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => { setOnlineGameConfig(null); setCurrentTab('dashboard'); }}
+                  >
+                    Sair da sala
+                  </button>
+                  <OnlineGame roomId={onlineGameConfig.roomId} isCreator={onlineGameConfig.isCreator} creatorColor={onlineGameConfig.creatorColor} initialTime={onlineGameConfig.initialTime} />
+                </div>
+              )}
+            </Suspense>
           </main>
           {isLobbyOpen && (
-            <LobbyModal onStartGame={handleStartOnlineGame} onCancel={() => { setIsLobbyOpen(false); if (currentTab === 'vs-online' && !onlineGameConfig) setCurrentTab('dashboard'); }} />
+            <Suspense fallback={<div style={{ color: '#f3efe6', padding: '20px' }}>Carregando...</div>}>
+              <LobbyModal onStartGame={handleStartOnlineGame} onCancel={() => { setIsLobbyOpen(false); if (currentTab === 'vs-online' && !onlineGameConfig) setCurrentTab('dashboard'); }} />
+            </Suspense>
           )}
         </div>
       )}

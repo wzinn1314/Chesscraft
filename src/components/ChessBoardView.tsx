@@ -39,7 +39,7 @@ export const ChessBoardView: React.FC<ChessBoardViewProps> = ({
   onCancelPromotion,
 }) => {
   return (
-    <div className="board-shell">
+    <div className="board-shell" role="region" aria-label="Tabuleiro de xadrez">
       <Chessboard
         position={fen}
         onPieceDrop={onPieceDrop}
@@ -61,23 +61,24 @@ export const ChessBoardView: React.FC<ChessBoardViewProps> = ({
       />
 
       {pendingPromotion && onPromote && (
-        <div className="promotion-overlay" role="dialog" aria-label="Escolher peça da promoção">
+        <div className="promotion-overlay" role="dialog" aria-label="Escolher peça da promoção" aria-modal="true">
           <div className="promotion-card">
             <p>Promover peão</p>
-            <div className="promotion-grid">
+            <div className="promotion-grid" role="group" aria-label="Opções de promoção">
               {PROMOTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   className="promotion-option"
                   onClick={() => onPromote(option.id)}
+                  aria-label={`Promover para ${option.label}`}
                 >
                   {option.label}
                 </button>
               ))}
             </div>
             {onCancelPromotion && (
-              <button type="button" className="btn btn-ghost" onClick={onCancelPromotion}>
+              <button type="button" className="btn btn-ghost" onClick={onCancelPromotion} aria-label="Cancelar promoção">
                 Cancelar
               </button>
             )}

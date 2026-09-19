@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
   }, []);
 
   const nav = (
-    <nav className="side-nav">
+    <nav className="side-nav" aria-label="Navegação principal">
       {menuItems.map((item) => {
         const isActive = currentTab === item.id;
         return (
@@ -38,6 +38,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
               onSelectTab(item.id);
               setIsMenuOpen(false);
             }}
+            aria-current={isActive ? 'page' : undefined}
+            aria-label={`Ir para ${item.label}`}
           >
             {item.label}
           </button>
@@ -54,12 +56,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
             <img src="/Gemini_Generated_Image_o5ngkwo5ngkwo5ng-removebg-preview.png" alt="ChessCraft" className="logo logo--header" />
             <strong>ChessCraft</strong>
           </div>
-          <button type="button" className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Menu">
+          <button 
+            type="button" 
+            className="menu-toggle" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+          >
             {isMenuOpen ? 'Fechar' : 'Menu'}
           </button>
         </div>
-        {isMenuOpen && <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)} />}
-        <aside className={`mobile-drawer${isMenuOpen ? ' is-open' : ''}`}>{nav}</aside>
+        {isMenuOpen && <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)} aria-hidden="true" />}
+        <aside 
+          id="mobile-menu"
+          className={`mobile-drawer${isMenuOpen ? ' is-open' : ''}`}
+          aria-label="Menu de navegação mobile"
+        >{nav}</aside>
         <div className="mobile-spacer" />
       </>
     );

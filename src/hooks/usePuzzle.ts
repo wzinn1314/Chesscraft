@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Chess } from 'chess.js';
 import { puzzleService } from '../service/puzzleService';
+import { logger } from '../utils/logger';
 import type { Puzzle, PuzzleAttempt } from '../types/puzzle';
 
 interface UsePuzzleOptions {
@@ -32,7 +33,9 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
       setIsFailed(false);
       setUserMoves([]);
       setStartTime(Date.now());
+      logger.info('Puzzle carregado com sucesso', 'usePuzzle', { puzzleId: newPuzzle.id, difficulty: options.difficulty });
     } catch (error) {
+      logger.error('Erro ao carregar puzzle', 'usePuzzle', { error, difficulty: options.difficulty });
       console.error('Erro ao carregar puzzle:', error);
     } finally {
       setLoading(false);
@@ -67,6 +70,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
           date: Date.now()
         };
         puzzleService.recordAttempt(attempt);
+        logger.warn('Movimento incorreto', 'usePuzzle', { puzzleId: puzzle.id, move: userMove, expected: expectedMove });
         options.onFail?.(puzzle);
         
         // Desfazer movimento incorreto
@@ -88,6 +92,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
           date: Date.now()
         };
         puzzleService.recordAttempt(attempt);
+        logger.info('Puzzle resolvido com sucesso', 'usePuzzle', { puzzleId: puzzle.id, attempts: newMoves.length, timeSpent: Date.now() - startTime });
         options.onSolve?.(puzzle);
         return true;
       }

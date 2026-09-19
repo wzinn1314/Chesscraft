@@ -79,7 +79,7 @@ export const PuzzlesArena: React.FC = () => {
   const hint = getHint();
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }} role="main" aria-label="Arena de puzzles táticos">
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
@@ -91,7 +91,7 @@ export const PuzzlesArena: React.FC = () => {
           </p>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }} role="status" aria-live="polite">
           <div style={{ 
             backgroundColor: theme.colors.surface, 
             padding: '10px 18px', 
@@ -115,13 +115,14 @@ export const PuzzlesArena: React.FC = () => {
       </div>
 
       {/* Difficulty Selector */}
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '8px' }} role="group" aria-label="Seletor de dificuldade">
         {(['easy', 'medium', 'hard'] as const).map((diff) => (
           <Button
             key={diff}
             variant={difficulty === diff ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => handleDifficultyChange(diff)}
+            aria-pressed={difficulty === diff}
           >
             {diff === 'easy' ? 'Fácil' : diff === 'medium' ? 'Médio' : 'Difícil'}
           </Button>

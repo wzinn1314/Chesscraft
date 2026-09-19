@@ -95,6 +95,7 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       className={`btn btn-${variant} ${className}`}
       style={combinedStyle}
+      aria-label={props['aria-label'] || (typeof children === 'string' ? children : undefined)}
       {...props}
     >
       {children}
