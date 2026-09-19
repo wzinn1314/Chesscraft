@@ -238,10 +238,10 @@ export const GameReplay: React.FC<GameReplayProps> = ({ initialPGN, onClose }) =
           <Card variant="default" padding="md">
             <div style={{ display: 'flex', gap: '8px' }}>
               <Button variant="secondary" size="sm" onClick={handleExportPGN} fullWidth>
-                📋 Copiar PGN
+                Copiar PGN
               </Button>
               <Button variant="secondary" size="sm" onClick={() => setShowPGNInput(!showPGNInput)} fullWidth>
-                📥 Importar PGN
+                Importar PGN
               </Button>
             </div>
             

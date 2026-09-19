@@ -53,7 +53,8 @@ export const PuzzlesArena: React.FC = () => {
 
   const handleDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
     setDifficulty(newDifficulty);
-    loadNewPuzzle();
+    setShowHint(false);
+    loadNewPuzzle(newDifficulty);
   };
 
   const handlePieceDrop = (source: string, target: string): boolean => {
@@ -61,7 +62,7 @@ export const PuzzlesArena: React.FC = () => {
   };
 
   const handleSquareClick = (square: string) => {
-    // Implementação básica de clique no tabuleiro
+    // O arrastar é o método principal. O clique apenas seleciona uma jogada forçada.
     if (isSolved || isFailed) return;
     
     const moves = chess.moves({ square: square as any, verbose: true });
@@ -193,10 +194,10 @@ export const PuzzlesArena: React.FC = () => {
               {isSolved && (
                 <Card variant="bordered" padding="md" style={{ textAlign: 'center', backgroundColor: 'rgba(98, 153, 36, 0.12)', borderColor: theme.colors.success }}>
                   <div style={{ color: theme.colors.success, fontSize: '16px', fontWeight: 800, marginBottom: '4px' }}>
-                    🎉 Puzzle Resolvido!
+                    Puzzle resolvido
                   </div>
                   <div style={{ color: theme.colors.textSecondary, fontSize: '13px' }}>
-                    Excelente trabalho!
+                    Solução registrada nas suas estatísticas.
                   </div>
                 </Card>
               )}
@@ -204,7 +205,7 @@ export const PuzzlesArena: React.FC = () => {
               {isFailed && (
                 <Card variant="bordered" padding="md" style={{ textAlign: 'center', backgroundColor: 'rgba(201, 52, 52, 0.12)', borderColor: theme.colors.loss }}>
                   <div style={{ color: theme.colors.loss, fontSize: '16px', fontWeight: 800, marginBottom: '4px' }}>
-                    ❌ Movimento Incorreto
+                    Movimento incorreto
                   </div>
                   <div style={{ color: theme.colors.textSecondary, fontSize: '13px' }}>
                     Tente novamente ou pule para o próximo.
@@ -236,7 +237,7 @@ export const PuzzlesArena: React.FC = () => {
                 {(isSolved || isFailed) && (
                   <Button
                     variant="primary"
-                    onClick={loadNewPuzzle}
+                    onClick={() => loadNewPuzzle()}
                   >
                     Próximo Puzzle
                   </Button>

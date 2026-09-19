@@ -53,7 +53,7 @@ class Logger {
     if (this.isDevelopment) {
       try {
         localStorage.setItem('chesscraft_logs', JSON.stringify(this.logs));
-      } catch (e) {
+      } catch {
         // Ignore storage errors
       }
     }
@@ -108,7 +108,7 @@ class Logger {
     if (this.isDevelopment) {
       try {
         localStorage.removeItem('chesscraft_logs');
-      } catch (e) {
+      } catch {
         // Ignore storage errors
       }
     }

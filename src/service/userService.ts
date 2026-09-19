@@ -120,6 +120,10 @@ export const loadActiveSession = (): { name: string; userId: string } | null => 
   }
 };
 
+export const clearActiveSession = (): void => {
+  localStorage.removeItem(SESSION_KEY);
+};
+
 export const calculateRatingChange = (
   result: 'win' | 'loss' | 'draw',
   opponentType: 'ai' | 'human' = 'ai',

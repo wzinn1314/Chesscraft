@@ -86,7 +86,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             borderRadius: '16px',
             border: '1px solid #2d2b27',
           }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+            <div style={{ fontSize: '18px', marginBottom: '16px', fontWeight: 700 }}>Não foi possível carregar esta tela</div>
             <h2 style={{ color: '#e58e26', margin: '0 0 8px', fontSize: '24px', fontWeight: 800 }}>
               Algo deu errado
             </h2>

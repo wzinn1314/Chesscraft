@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Chess } from 'chess.js';
 import { puzzleService } from '../service/puzzleService';
 import { logger } from '../utils/logger';
-import type { Puzzle, PuzzleAttempt } from '../types/puzzle';
+import type { Puzzle, PuzzleAttempt, PuzzleStats } from '../types/puzzle';
 
 interface UsePuzzleOptions {
   difficulty?: 'easy' | 'medium' | 'hard';
@@ -19,13 +19,15 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
   const [userMoves, setUserMoves] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  
-  const attemptTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [stats, setStats] = useState<PuzzleStats>(() => puzzleService.getStats());
 
-  const loadNewPuzzle = useCallback(() => {
+  const refreshStats = useCallback(() => setStats(puzzleService.getStats()), []);
+
+  const loadNewPuzzle = useCallback((difficultyOverride?: 'easy' | 'medium' | 'hard') => {
     setLoading(true);
     try {
-      const newPuzzle = puzzleService.getRandomPuzzle(options.difficulty);
+      const difficulty = difficultyOverride ?? options.difficulty;
+      const newPuzzle = puzzleService.getRandomPuzzle(difficulty);
       chess.load(newPuzzle.fen);
       setPuzzle(newPuzzle);
       setCurrentMoveIndex(0);
@@ -33,7 +35,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
       setIsFailed(false);
       setUserMoves([]);
       setStartTime(Date.now());
-      logger.info('Puzzle carregado com sucesso', 'usePuzzle', { puzzleId: newPuzzle.id, difficulty: options.difficulty });
+      logger.info('Puzzle carregado com sucesso', 'usePuzzle', { puzzleId: newPuzzle.id, difficulty });
     } catch (error) {
       logger.error('Erro ao carregar puzzle', 'usePuzzle', { error, difficulty: options.difficulty });
       console.error('Erro ao carregar puzzle:', error);
@@ -70,6 +72,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
           date: Date.now()
         };
         puzzleService.recordAttempt(attempt);
+        refreshStats();
         logger.warn('Movimento incorreto', 'usePuzzle', { puzzleId: puzzle.id, move: userMove, expected: expectedMove });
         options.onFail?.(puzzle);
         
@@ -92,6 +95,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
           date: Date.now()
         };
         puzzleService.recordAttempt(attempt);
+        refreshStats();
         logger.info('Puzzle resolvido com sucesso', 'usePuzzle', { puzzleId: puzzle.id, attempts: newMoves.length, timeSpent: Date.now() - startTime });
         options.onSolve?.(puzzle);
         return true;
@@ -113,7 +117,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
       console.error('Erro ao fazer movimento:', error);
       return false;
     }
-  }, [puzzle, currentMoveIndex, isSolved, isFailed, userMoves, startTime, chess, options]);
+  }, [puzzle, currentMoveIndex, isSolved, isFailed, userMoves, startTime, chess, options, refreshStats]);
 
   const resetPuzzle = useCallback(() => {
     if (!puzzle) return;
@@ -137,8 +141,9 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
       date: Date.now()
     };
     puzzleService.recordAttempt(attempt);
+    refreshStats();
     loadNewPuzzle();
-  }, [puzzle, userMoves, startTime, loadNewPuzzle]);
+  }, [puzzle, userMoves, startTime, loadNewPuzzle, refreshStats]);
 
   const getHint = useCallback((): string | null => {
     if (!puzzle || isSolved || isFailed) return null;
@@ -156,15 +161,6 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
     loadNewPuzzle();
   }, [loadNewPuzzle]);
 
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (attemptTimeoutRef.current) {
-        clearTimeout(attemptTimeoutRef.current);
-      }
-    };
-  }, []);
-
   return {
     puzzle,
     chess,
@@ -178,6 +174,6 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
     resetPuzzle,
     skipPuzzle,
     getHint,
-    stats: puzzleService.getStats()
+    stats
   };
 };

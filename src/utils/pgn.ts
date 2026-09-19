@@ -123,7 +123,7 @@ export function generatePGN(game: PGNGame): string {
     
     try {
       chess.move(move);
-    } catch (e) {
+    } catch {
       // Invalid move, skip
     }
     
@@ -173,7 +173,7 @@ export function importPGN(pgn: string): Chess {
   for (const move of parsed.moves) {
     try {
       chess.move(move);
-    } catch (e) {
+    } catch {
       console.error('Invalid move in PGN:', move);
     }
   }

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Chess, type Square } from 'chess.js';
 import { difficultySettings, getAIMove } from '../utils/chessAI';
+import { playSound } from '../utils/audio';
 
 export const useChessGame = () => {
   const [game, setGame] = useState(new Chess());
@@ -11,6 +12,7 @@ export const useChessGame = () => {
       const result = newGame.move(move);
       if (result) {
         setGame(newGame);
+        playSound(result.captured ? 'capture' : 'move');
         return true;
       }
     } catch {
@@ -25,8 +27,9 @@ export const useChessGame = () => {
 
     const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     const newGame = new Chess(game.fen());
-    newGame.move(randomMove);
-    setGame(newGame);
+      newGame.move(randomMove);
+      setGame(newGame);
+      playSound(randomMove.captured ? 'capture' : 'move');
   }, [game]);
 
   const makeAIMove = useCallback((difficulty: keyof typeof difficultySettings = 'medium') => {
@@ -37,6 +40,7 @@ export const useChessGame = () => {
       const newGame = new Chess(game.fen());
       newGame.move(aiMove);
       setGame(newGame);
+      playSound('move');
     }
   }, [game]);
 

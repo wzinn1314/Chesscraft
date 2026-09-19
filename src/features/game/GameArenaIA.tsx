@@ -116,8 +116,11 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
 
   useEffect(() => {
     if (gameStarted && selectedBot && turn === 'b' && !isGameOver) {
-      makeAIMove(selectedBot.difficulty);
+      // Permite que o lance do jogador seja desenhado antes do cálculo da IA.
+      const timer = window.setTimeout(() => makeAIMove(selectedBot.difficulty), 180);
+      return () => window.clearTimeout(timer);
     }
+    return undefined;
   }, [turn, isGameOver, makeAIMove, selectedBot, gameStarted]);
 
   useEffect(() => {
@@ -138,7 +141,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
     ).then(setOutcome);
   }, [gameStarted, selectedBot, isGameOver, isDraw, winner, moveCount, playerName, fen]);
 
-  // 👈 MUDANÇA 2: o handlePieceDrop antigo foi trocado por este bloco
+  // O movimento é validado pelo controlador de dicas antes de atualizar a partida.
   const hints = useMoveHints({
     fen,
     canMove: turn === 'w' && gameStarted && !isGameOver,

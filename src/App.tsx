@@ -4,7 +4,7 @@ import Settings from './components/Settings';
 import { Sidebar } from './components/Sidebar';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { getCache, setCache } from './service/cache';
-import { createOrUpdateUser, loadActiveSession } from './service/userService';
+import { createOrUpdateUser, loadActiveSession, clearActiveSession } from './service/userService';
 
 // Lazy loading de componentes pesados
 const DashboardHome = lazy(() => import('./features/dashboard/DashboardHome'));
@@ -87,10 +87,23 @@ export const App: React.FC = () => {
     // apply cached theme on mount
     const cached = (getCache('prefs:theme') as 'light' | 'dark') ?? theme;
     applyTheme(cached);
+    document.documentElement.dataset.reducedMotion = String(getCache('prefs:reducedMotion') === true);
+    document.documentElement.dataset.highContrast = String(getCache('prefs:highContrast') === true);
+    document.documentElement.dataset.boardTheme = String(getCache('prefs:boardTheme') ?? 'classic');
+    const accent = getCache('prefs:accent');
+    const accentValues: Record<string, [string, string]> = {
+      gold: ['#d4a054', '212, 160, 84'], blue: ['#5b9bd5', '91, 155, 213'],
+      green: ['#69a86d', '105, 168, 109'], violet: ['#a77bd6', '167, 123, 214'],
+    };
+    if (typeof accent === 'string' && accentValues[accent]) {
+      document.documentElement.style.setProperty('--brand', accentValues[accent][0]);
+      document.documentElement.style.setProperty('--brand-rgb', accentValues[accent][1]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSignOut = () => {
+    clearActiveSession();
     setPlayerName('');
     setShowWelcome(true);
   };

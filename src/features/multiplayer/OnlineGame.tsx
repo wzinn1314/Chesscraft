@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ChessBoardView } from '../../components/ChessBoardView';
 import { useMoveHints } from '../../hooks/useMoveHints';
 import { useOnlineGame } from '../../hooks/useOnlineGame';
+import { Chat } from '../../components/Chat';
+import { getUserId, loadActiveSession } from '../../service/userService';
 
 interface OnlineGameProps {
   roomId: string;
@@ -32,6 +34,8 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
   } = useOnlineGame(roomId, isCreator, creatorColor, initialTime);
 
   const [copied, setCopied] = useState(false);
+  const activeSession = loadActiveSession();
+  const chatName = activeSession?.name ?? 'Jogador';
 
   const hints = useMoveHints({
     fen,
@@ -134,6 +138,7 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
           {formatTime(myColor === 'w' ? whiteTime : blackTime)}
         </strong>
       </div>
+      <Chat roomId={roomId} currentUserId={getUserId(chatName)} currentUserName={chatName} />
     </section>
   );
 };

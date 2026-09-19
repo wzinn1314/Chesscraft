@@ -1,6 +1,7 @@
 import React from 'react';
 import { Chessboard } from 'react-chessboard';
 import type { PendingPromotion } from '../hooks/useMoveHints';
+import { getCache } from '../service/cache';
 
 type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
@@ -38,6 +39,7 @@ export const ChessBoardView: React.FC<ChessBoardViewProps> = ({
   onPromote,
   onCancelPromotion,
 }) => {
+  const showCoordinates = getCache('prefs:showCoordinates') !== false;
   return (
     <div className="board-shell" role="region" aria-label="Tabuleiro de xadrez">
       <Chessboard
@@ -49,10 +51,10 @@ export const ChessBoardView: React.FC<ChessBoardViewProps> = ({
         customArrows={customArrows as any}
         boardOrientation={orientation}
         arePiecesDraggable={arePiecesDraggable && !pendingPromotion}
-        showBoardNotation
+        showBoardNotation={showCoordinates}
         animationDuration={180}
-        customDarkSquareStyle={{ backgroundColor: '#769656' }}
-        customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
+        customDarkSquareStyle={{ backgroundColor: 'var(--board-dark)' }}
+        customLightSquareStyle={{ backgroundColor: 'var(--board-light)' }}
         customBoardStyle={{
           borderRadius: '4px',
           boxShadow: '0 18px 50px rgba(0,0,0,0.45)',

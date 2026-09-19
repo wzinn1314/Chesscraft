@@ -93,7 +93,8 @@ export const difficultySettings = {
   easy: { depth: 1, randomness: 0.3 },
   medium: { depth: 2, randomness: 0.15 },
   hard: { depth: 3, randomness: 0.05 },
-  expert: { depth: 4, randomness: 0.0 }
+  // Profundidade 3 mantém a partida fluida no navegador, inclusive em posições abertas.
+  expert: { depth: 3, randomness: 0.0 }
 };
 
 // Função para obter tabela posicional

@@ -4,6 +4,7 @@ import { Card } from './Card';
 import { database } from '../service/firebase';
 import { ref, push, onValue, off, set } from 'firebase/database';
 import { logger } from '../utils/logger';
+import { getCache, setCache } from '../service/cache';
 
 export interface ChatMessage {
   id: string;
@@ -12,7 +13,7 @@ export interface ChatMessage {
   userName: string;
   message: string;
   timestamp: number;
-  type?: 'text' | 'system' | 'emoji';
+  type?: 'text' | 'system' | 'quick';
 }
 
 interface ChatProps {
@@ -21,19 +22,24 @@ interface ChatProps {
   currentUserName: string;
 }
 
-const EMOJIS = ['👍', '👎', '😄', '😮', '🎉', '🔥', '💪', '🤔', '❤️', '⭐'];
+const QUICK_MESSAGES = ['Boa jogada', 'Obrigado', 'Sua vez', 'Vamos jogar', 'Partida equilibrada'];
+const cacheKey = (roomId: string) => `chesscraft_chat_${roomId}`;
 
 export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserName }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [connection, setConnection] = useState<'online' | 'local'>('online');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const cached = getCache(cacheKey(roomId));
+    setMessages(Array.isArray(cached) ? cached as ChatMessage[] : []);
     const chatRef = ref(database, `chat/${roomId}`);
     
     onValue(chatRef, (snapshot) => {
+      setConnection('online');
       if (snapshot.exists()) {
         const messagesData = snapshot.val() as Record<string, ChatMessage>;
         const messagesArray = Object.values(messagesData).sort((a, b) => a.timestamp - b.timestamp);
@@ -44,7 +50,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       }
-    });
+    }, () => setConnection('local'));
     
     return () => {
       off(chatRef);
@@ -57,24 +63,32 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
     }
   }, [isOpen]);
 
-  const sendMessage = async (message: string, type: 'text' | 'emoji' = 'text') => {
+  const sendMessage = async (message: string, type: 'text' | 'quick' = 'text') => {
     if (!message.trim()) return;
     
+    const chatMessage: ChatMessage = {
+      id: `${currentUserId}-${Date.now()}`,
+      roomId,
+      userId: currentUserId,
+      userName: currentUserName,
+      message: message.trim(),
+      timestamp: Date.now(),
+      type,
+    };
+
+    const saveLocally = () => {
+      setMessages((current) => {
+        const next = [...current, chatMessage];
+        setCache(cacheKey(roomId), next.slice(-100));
+        return next;
+      });
+      setConnection('local');
+    };
+
     try {
       const chatRef = ref(database, `chat/${roomId}`);
       const newMessageRef = push(chatRef);
-      
-      const chatMessage: ChatMessage = {
-        id: newMessageRef.key!,
-        roomId,
-        userId: currentUserId,
-        userName: currentUserName,
-        message: message.trim(),
-        timestamp: Date.now(),
-        type,
-      };
-      
-      await set(newMessageRef, chatMessage);
+      await set(newMessageRef, { ...chatMessage, id: newMessageRef.key! });
       
       logger.info('Mensagem enviada', 'Chat', { roomId, userId: currentUserId });
       
@@ -83,11 +97,13 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
       }
     } catch (error) {
       logger.error('Erro ao enviar mensagem', 'Chat', { error });
+      saveLocally();
+      if (type === 'text') setNewMessage('');
     }
   };
 
-  const handleSendEmoji = (emoji: string) => {
-    sendMessage(emoji, 'emoji');
+  const handleSendQuickMessage = (message: string) => {
+    void sendMessage(message, 'quick');
   };
 
   const formatTime = (timestamp: number): string => {
@@ -119,7 +135,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
           }}
           aria-label="Abrir chat"
         >
-          💬
+          Chat
         </Button>
         {messages.length > 0 && (
           <div style={{
@@ -179,9 +195,14 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
             onClick={() => setIsOpen(false)}
             aria-label="Fechar chat"
           >
-            ✕
+            Fechar
           </Button>
         </div>
+        {connection === 'local' && (
+          <p style={{ color: '#d4a054', fontSize: '11px', margin: '0 0 8px' }}>
+            Mensagens salvas neste dispositivo. A conexão da sala não está disponível.
+          </p>
+        )}
 
         {/* Messages */}
         <div style={{
@@ -201,7 +222,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
               padding: '20px',
               fontSize: '14px',
             }}>
-              Nenhuma mensagem ainda. Seja o primeiro a dizer olá! 👋
+              Nenhuma mensagem ainda. Seja o primeiro a dizer olá.
             </div>
           ) : (
             messages.map((msg) => {
@@ -261,7 +282,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Emoji Picker */}
+        {/* Mensagens rápidas */}
         <div style={{ marginBottom: '8px' }}>
           <div style={{ 
             display: 'flex', 
@@ -271,25 +292,23 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
             backgroundColor: '#1c1b18',
             borderRadius: '8px',
           }}>
-            {EMOJIS.map((emoji) => (
+            {QUICK_MESSAGES.map((message) => (
               <button
-                key={emoji}
+                key={message}
                 type="button"
-                onClick={() => handleSendEmoji(emoji)}
+                onClick={() => handleSendQuickMessage(message)}
                 style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  fontSize: '20px',
+                  backgroundColor: '#25231f',
+                  border: '1px solid #3d3a34',
+                  color: '#f3efe6',
+                  fontSize: '12px',
                   cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px',
-                  transition: 'transform 0.2s',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                aria-label={`Enviar emoji ${emoji}`}
+                aria-label={`Enviar mensagem: ${message}`}
               >
-                {emoji}
+                {message}
               </button>
             ))}
           </div>
