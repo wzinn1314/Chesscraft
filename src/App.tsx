@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import Header from './components/Header';
+import Settings from './components/Settings';
 import { Sidebar } from './components/Sidebar';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import DashboardHome from './features/dashboard/DashboardHome';
-import GameArenaLocal from './features/game/GameArenaLocal';
 import GameArenaAI from './features/game/GameArenaIA';
-import PuzzlesArena from './features/puzzles/PuzzleArena';
+import GameArenaLocal from './features/game/GameArenaLocal';
 import { LobbyModal } from './features/multiplayer/LobbyModal';
 import OnlineGame from './features/multiplayer/OnlineGame';
-import Header from './components/Header';
-import Settings from './components/Settings';
-import { createOrUpdateUser, loadActiveSession } from './service/userService';
+import PuzzlesArena from './features/puzzles/PuzzleArena';
 import { getCache, setCache } from './service/cache';
+import { createOrUpdateUser, loadActiveSession } from './service/userService';
 
 export interface BotOpponent {
   id: number;
@@ -103,9 +103,9 @@ export const App: React.FC = () => {
       {showWelcome ? (
         <WelcomeScreen onWelcome={handleWelcome} />
       ) : (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#121214', color: '#ffffff' }}>
+        <div className="app-shell">
           <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
-          <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+          <main className="app-main">
             <Header playerName={playerName} />
             {currentTab === 'dashboard' && (
               <DashboardHome playerName={playerName} onSelectMode={handleSelectTab} />
@@ -123,7 +123,13 @@ export const App: React.FC = () => {
             {currentTab === 'puzzles' && <PuzzlesArena />}
             {currentTab === 'vs-online' && onlineGameConfig && (
               <div>
-                <button onClick={() => { setOnlineGameConfig(null); setCurrentTab('dashboard'); }} style={{ marginBottom: '16px', backgroundColor: '#2d2b27', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>← Sair da Sala</button>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => { setOnlineGameConfig(null); setCurrentTab('dashboard'); }}
+                >
+                  Sair da sala
+                </button>
                 <OnlineGame roomId={onlineGameConfig.roomId} isCreator={onlineGameConfig.isCreator} creatorColor={onlineGameConfig.creatorColor} initialTime={onlineGameConfig.initialTime} />
               </div>
             )}

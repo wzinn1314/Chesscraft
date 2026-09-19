@@ -1,4 +1,4 @@
-// src/types/chess.ts
+
 
 // Tipo exato de cada casa do tabuleiro
 export type Square = 

@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Chessboard } from 'react-chessboard';
-import { useChessGame } from '../../hooks/useChessGame';
-import { difficultySettings } from '../../utils/chessAI';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChessBoardView } from '../../components/ChessBoardView';
 import { GameOverModal } from '../../components/GameOverModal';
+import { useChessGame } from '../../hooks/useChessGame';
+import { useMoveHints } from '../../hooks/useMoveHints';
 import {
-  getUserId,
-  recordGameResult,
-  type RecordedGameOutcome,
+    getUserId,
+    recordGameResult,
+    type RecordedGameOutcome,
 } from '../../service/userService';
+import { difficultySettings } from '../../utils/chessAI';
 
 export interface BotOpponent {
   id: number;
@@ -29,7 +30,7 @@ const BOTS_LIST: BotOpponent[] = [
     level: "Iniciante",
     elo: "200 - 400",
     desc: "Caótico e imprevisível. Esquece peças desprotegidas e joga sem plano.",
-    avatar: "👾",
+    avatar: 'GL',
     color: "#2ecc71",
     difficulty: "easy"
   },
@@ -40,7 +41,7 @@ const BOTS_LIST: BotOpponent[] = [
     level: "Fácil",
     elo: "700 - 900",
     desc: "Passivo e defensivo. Evita trocas e recua peças em vez de atacar.",
-    avatar: "🗿",
+    avatar: 'GA',
     color: "#3498db",
     difficulty: "easy"
   },
@@ -51,7 +52,7 @@ const BOTS_LIST: BotOpponent[] = [
     level: "Médio",
     elo: "1200 - 1400",
     desc: "Tático e agressivo. Ataca rápido com peças que saltam, mas peca no final.",
-    avatar: "⚔️",
+    avatar: 'SG',
     color: "#f1c40f",
     difficulty: "medium"
   },
@@ -62,7 +63,7 @@ const BOTS_LIST: BotOpponent[] = [
     level: "Difícil",
     elo: "1700 - 1900",
     desc: "Calculista. Domina o centro e explora falhas na estrutura de peões.",
-    avatar: "🧙‍♂️",
+    avatar: 'AI',
     color: "#e67e22",
     difficulty: "hard"
   },
@@ -73,7 +74,7 @@ const BOTS_LIST: BotOpponent[] = [
     level: "Mestre",
     elo: "2200 - 2400",
     desc: "Pressionadora. Pune erros mínimos e cria combinações fatais.",
-    avatar: "👑",
+    avatar: 'VE',
     color: "#9b59b6",
     difficulty: "expert"
   },
@@ -84,7 +85,7 @@ const BOTS_LIST: BotOpponent[] = [
     level: "Hardcore",
     elo: "2800+",
     desc: "Perfeição matemática. Calcula milhões de lances sem cometer erros.",
-    avatar: "🤖",
+    avatar: 'CM',
     color: "#e74c3c",
     difficulty: "master"
   }
@@ -105,6 +106,8 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
     gameResult,
     winner,
     isDraw,
+    inCheck,
+    lastMove,
     moveCount,
     makeMove,
     makeAIMove,
@@ -115,7 +118,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
     if (gameStarted && selectedBot && turn === 'b' && !isGameOver) {
       makeAIMove(selectedBot.difficulty);
     }
-  }, [turn, isGameOver, makeAIMove, selectedBot?.difficulty, gameStarted]);
+  }, [turn, isGameOver, makeAIMove, selectedBot, gameStarted]);
 
   useEffect(() => {
     if (!gameStarted || !selectedBot || !isGameOver || recordedRef.current) return;
@@ -135,10 +138,14 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
     ).then(setOutcome);
   }, [gameStarted, selectedBot, isGameOver, isDraw, winner, moveCount, playerName, fen]);
 
-  const handlePieceDrop = (source: string, target: string): boolean => {
-    if (turn !== 'w' || !gameStarted) return false;
-    return makeMove({ from: source, to: target, promotion: 'q' });
-  };
+  // 👈 MUDANÇA 2: o handlePieceDrop antigo foi trocado por este bloco
+  const hints = useMoveHints({
+    fen,
+    canMove: turn === 'w' && gameStarted && !isGameOver,
+    lastMove,
+    inCheck,
+    onMove: (from, to, promotion) => makeMove({ from, to, promotion: promotion ?? 'q' }),
+  });
 
   const handleSelectBot = (bot: BotOpponent) => {
     recordedRef.current = false;
@@ -169,7 +176,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
         <>
           <div>
             <h1 style={{ fontSize: '28px', color: '#ffffff', margin: '0 0 4px 0', fontWeight: 'bold' }}>
-              🤖 Contra Computador
+              Contra o computador
             </h1>
             <p style={{ color: '#bab4ab', margin: 0, fontSize: '15px' }}>
               Escolha seu oponente, <strong style={{ color: '#e58e26' }}>{playerName}</strong>.
@@ -210,7 +217,10 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                 }}
               >
                 <div style={{
-                  fontSize: '48px',
+                  fontSize: '22px',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  color: bot.color,
                   backgroundColor: `${bot.color}15`,
                   width: '80px',
                   height: '80px',
@@ -269,7 +279,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h1 style={{ fontSize: '24px', color: '#ffffff', margin: '0 0 4px 0', fontWeight: 'bold' }}>
-                🤖 {selectedBot?.name}
+                {selectedBot?.name}
               </h1>
               <p style={{ color: '#bab4ab', margin: 0, fontSize: '14px' }}>
                 {selectedBot?.title} • Elo {selectedBot?.elo}
@@ -296,12 +306,18 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
           <div className="game-arena-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', alignItems: 'start' }}>
             
             <div className="chessboard-container" style={{ width: '100%', maxWidth: '560px', justifySelf: 'center' }}>
-              {/* @ts-ignore */}
-              <Chessboard 
-                position={fen} 
-                onPieceDrop={handlePieceDrop}
-                boardOrientation="white"
-                customBoardStyle={{ borderRadius: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.5)' }}
+              <ChessBoardView
+                fen={fen}
+                orientation="white"
+                arePiecesDraggable={turn === 'w' && !isGameOver}
+                onPieceDrop={hints.onPieceDrop}
+                onSquareClick={hints.onSquareClick}
+                onPieceDragBegin={hints.onPieceDragBegin}
+                customSquareStyles={hints.customSquareStyles}
+                customArrows={hints.customArrows}
+                pendingPromotion={hints.pendingPromotion}
+                onPromote={hints.confirmPromotion}
+                onCancelPromotion={hints.cancelPromotion}
               />
             </div>
 
@@ -327,18 +343,18 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                   gap: '12px'
                 }}>
                   {turn === 'w' ? (
-                    <>
-                      <span>♟️</span>
-                      <span>Sua vez (Brancas)</span>
-                    </>
+                    <span>Sua vez · brancas</span>
                   ) : (
-                    <>
-                      <span>{selectedBot?.avatar}</span>
-                      <span>{selectedBot?.name} pensando...</span>
-                    </>
+                    <span>{selectedBot?.name} pensando...</span>
                   )}
                 </div>
               </div>
+
+              {hints.castleAvailable && (
+                <p className="hint-note">
+                  Roque disponível: selecione o rei e clique no ponto dourado ou na torre.
+                </p>
+              )}
 
               {isGameOver && (
                 <div style={{
@@ -369,7 +385,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                   marginTop: 'auto'
                 }}
               >
-                Reiniciar Partida 🔄
+                Reiniciar partida
               </button>
             </div>
 

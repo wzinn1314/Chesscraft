@@ -23,7 +23,8 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
 
   const handleJoinRoom = () => {
     if (inputRoomId.trim()) {
-      onStartGame(inputRoomId.trim().toUpperCase(), false, 'b', 300);
+      // A cor do convidado vem da sala no Firebase (oposta à do criador).
+      onStartGame(inputRoomId.trim().toUpperCase(), false, 'w', 300);
     }
   };
 
@@ -121,7 +122,7 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
                     cursor: 'pointer'
                   }}
                 >
-                  ⚪ Brancas
+                  Brancas
                 </button>
                 <button
                   type="button"
@@ -137,7 +138,7 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
                     cursor: 'pointer'
                   }}
                 >
-                  ⚫ Pretas
+                  Pretas
                 </button>
               </div>
             </div>

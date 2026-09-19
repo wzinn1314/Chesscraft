@@ -10,23 +10,20 @@ interface GameOverModalProps {
 
 const copy: Record<
   RecordedGameOutcome['result'],
-  { title: string; emoji: string; color: string; subtitle: string }
+  { title: string; color: string; subtitle: string }
 > = {
   win: {
-    title: 'Você venceu!',
-    emoji: '🏆',
+    title: 'Vitória',
     color: '#629924',
-    subtitle: 'Vitória registrada no seu perfil.',
+    subtitle: 'Resultado registrado no seu perfil.',
   },
   loss: {
-    title: 'Você perdeu',
-    emoji: '♟️',
+    title: 'Derrota',
     color: '#c93434',
-    subtitle: 'A derrota também entra no histórico.',
+    subtitle: 'A partida entra no histórico.',
   },
   draw: {
     title: 'Empate',
-    emoji: '🤝',
     color: '#e58e26',
     subtitle: 'Partida equilibrada.',
   },
@@ -67,7 +64,6 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
         }}
       >
-        <div style={{ fontSize: '48px', marginBottom: '8px' }}>{ui.emoji}</div>
         <h2 style={{ margin: '0 0 6px 0', color: ui.color, fontSize: '28px', fontWeight: 800 }}>
           {ui.title}
         </h2>

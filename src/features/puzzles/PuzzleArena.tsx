@@ -7,7 +7,7 @@ export const PuzzlesArena: React.FC = () => {
     <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '28px', color: '#ffffff', margin: '0 0 4px 0', fontWeight: 'bold' }}>🧩 Puzzles Táticos</h1>
+          <h1 style={{ fontSize: '28px', color: '#ffffff', margin: '0 0 4px 0', fontWeight: 'bold' }}>Puzzles táticos</h1>
           <p style={{ color: '#bab4ab', margin: 0, fontSize: '15px' }}>Resolva problemas táticos para subir seu rating.</p>
         </div>
         <div style={{ backgroundColor: '#21201d', padding: '10px 18px', borderRadius: '12px', border: '1px solid #2d2b27' }}>
@@ -31,7 +31,7 @@ export const PuzzlesArena: React.FC = () => {
           color: '#bab4ab',
           justifySelf: 'center'
         }}>
-          ♟️ [ Tabuleiro de Puzzle Tático ]
+          Tabuleiro de puzzle tático
         </div>
 
         <div style={{
@@ -62,7 +62,7 @@ export const PuzzlesArena: React.FC = () => {
               marginTop: '20px'
             }}
           >
-            Próximo Puzzle ➡️
+            Próximo puzzle
           </button>
         </div>
 
