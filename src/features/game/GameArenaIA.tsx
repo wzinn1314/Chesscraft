@@ -28,18 +28,18 @@ const BOTS_LIST: BotOpponent[] = [
     name: "Gloop",
     title: "O Monstrinho Curioso",
     level: "Iniciante",
-    elo: "200 - 400",
+    elo: "150",
     desc: "Caótico e imprevisível. Esquece peças desprotegidas e joga sem plano.",
     avatar: 'GL',
     color: "#2ecc71",
-    difficulty: "easy"
+    difficulty: "beginner"
   },
   {
     id: 2,
     name: "Gargoyle",
     title: "O Guardião de Pedra",
     level: "Fácil",
-    elo: "700 - 900",
+    elo: "300",
     desc: "Passivo e defensivo. Evita trocas e recua peças em vez de atacar.",
     avatar: 'GA',
     color: "#3498db",
@@ -50,7 +50,7 @@ const BOTS_LIST: BotOpponent[] = [
     name: "Sir Gareth",
     title: "O Cavaleiro Audaz",
     level: "Médio",
-    elo: "1200 - 1400",
+    elo: "550",
     desc: "Tático e agressivo. Ataca rápido com peças que saltam, mas peca no final.",
     avatar: 'SG',
     color: "#f1c40f",
@@ -61,7 +61,7 @@ const BOTS_LIST: BotOpponent[] = [
     name: "Archmage Ignis",
     title: "O Feiticeiro",
     level: "Difícil",
-    elo: "1700 - 1900",
+    elo: "800",
     desc: "Calculista. Domina o centro e explora falhas na estrutura de peões.",
     avatar: 'AI',
     color: "#e67e22",
@@ -72,7 +72,7 @@ const BOTS_LIST: BotOpponent[] = [
     name: "Vespera",
     title: "A Rainha das Sombras",
     level: "Mestre",
-    elo: "2200 - 2400",
+    elo: "1050",
     desc: "Pressionadora. Pune erros mínimos e cria combinações fatais.",
     avatar: 'VE',
     color: "#9b59b6",
@@ -83,7 +83,7 @@ const BOTS_LIST: BotOpponent[] = [
     name: "CHESS-MIND 9000",
     title: "O Núcleo IA",
     level: "Hardcore",
-    elo: "2800+",
+    elo: "1300",
     desc: "Perfeição matemática. Calcula milhões de lances sem cometer erros.",
     avatar: 'CM',
     color: "#e74c3c",
@@ -116,7 +116,6 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
 
   useEffect(() => {
     if (gameStarted && selectedBot && turn === 'b' && !isGameOver) {
-      // Permite que o lance do jogador seja desenhado antes do cálculo da IA.
       const timer = window.setTimeout(() => makeAIMove(selectedBot.difficulty), 180);
       return () => window.clearTimeout(timer);
     }
@@ -140,8 +139,6 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
       moveCount,
     ).then(setOutcome);
   }, [gameStarted, selectedBot, isGameOver, isDraw, winner, moveCount, playerName, fen]);
-
-  // O movimento é validado pelo controlador de dicas antes de atualizar a partida.
   const hints = useMoveHints({
     fen,
     canMove: turn === 'w' && gameStarted && !isGameOver,
@@ -175,7 +172,6 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {!gameStarted ? (
-        // Tela de Seleção de IAs
         <>
           <div>
             <h1 style={{ fontSize: '28px', color: '#ffffff', margin: '0 0 4px 0', fontWeight: 'bold' }}>
@@ -186,7 +182,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
             </p>
           </div>
 
-          {/* Seleção de Oponentes */}
+
           <div className="bot-selection-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -236,7 +232,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                 }}>
                   {bot.avatar}
                 </div>
-                
+
                 <div>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '18px', marginBottom: '4px' }}>
                     {bot.name}
@@ -244,7 +240,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                   <div style={{ color: bot.color, fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
                     {bot.title}
                   </div>
-                  <div style={{ 
+                  <div style={{
                     display: 'inline-block',
                     backgroundColor: `${bot.color}20`,
                     color: bot.color,
@@ -262,9 +258,9 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                   {bot.desc}
                 </div>
 
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                   paddingTop: '12px',
                   borderTop: '1px solid #2d2b27'
@@ -277,7 +273,6 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
           </div>
         </>
       ) : (
-        // Tela de Jogo
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
@@ -305,9 +300,9 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
             </button>
           </div>
 
-          {/* Arena de Jogo */}
+
           <div className="game-arena-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', alignItems: 'start' }}>
-            
+
             <div className="chessboard-container" style={{ width: '100%', maxWidth: '560px', justifySelf: 'center' }}>
               <ChessBoardView
                 fen={fen}
@@ -324,7 +319,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
               />
             </div>
 
-            {/* Status do Jogo */}
+
             <div style={{
               backgroundColor: '#21201d',
               padding: '24px',
@@ -336,9 +331,9 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
             }}>
               <div style={{ padding: '16px', backgroundColor: '#161512', borderRadius: '12px', border: '1px solid #2d2b27', textAlign: 'center' }}>
                 <div style={{ color: '#bab4ab', fontSize: '14px', marginBottom: '8px' }}>VEZ DE JOGAR</div>
-                <div style={{ 
-                  fontSize: '24px', 
-                  fontWeight: 'bold', 
+                <div style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
                   color: turn === 'w' ? '#e58e26' : selectedBot?.color,
                   display: 'flex',
                   alignItems: 'center',
@@ -374,7 +369,7 @@ export const GameArenaAI: React.FC<{ playerName: string; onGoHome: () => void }>
                 </div>
               )}
 
-              <button 
+              <button
                 onClick={handlePlayAgain}
                 style={{
                   backgroundColor: '#e58e26',

@@ -4,6 +4,7 @@ import type { RecordedGameOutcome } from '../service/userService';
 interface GameOverModalProps {
   outcome: RecordedGameOutcome;
   opponentName: string;
+  gameOverReason?: string;
   onHome: () => void;
   onPlayAgain?: () => void;
 }
@@ -32,10 +33,12 @@ const copy: Record<
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   outcome,
   opponentName,
+  gameOverReason,
   onHome,
   onPlayAgain,
 }) => {
   const ui = copy[outcome.result];
+  const title = gameOverReason?.toLowerCase().includes('xeque') ? 'Xeque-mate' : ui.title;
   const gained = outcome.ratingChange >= 0;
   const changeLabel = `${gained ? '+' : ''}${outcome.ratingChange}`;
 
@@ -65,11 +68,12 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         }}
       >
         <h2 style={{ margin: '0 0 6px 0', color: ui.color, fontSize: '28px', fontWeight: 800 }}>
-          {ui.title}
+          {title}
         </h2>
         <p style={{ margin: '0 0 20px 0', color: '#bab4ab', fontSize: '14px' }}>
           vs. {opponentName} · {ui.subtitle}
         </p>
+        {gameOverReason && <p style={{ margin: '-10px 0 20px', color: '#f3efe6', fontWeight: 700 }}>{gameOverReason}</p>}
 
         <div
           style={{

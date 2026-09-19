@@ -1,7 +1,3 @@
-/**
- * Sistema de logging centralizado para o ChessCraft
- */
-
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogEntry {
@@ -25,15 +21,11 @@ class Logger {
 
   private log(entry: LogEntry) {
     this.logs.push(entry);
-    
-    // Keep only recent logs
     if (this.logs.length > this.maxLogs) {
       this.logs.shift();
     }
-
-    // Console output based on level
     const message = this.formatMessage(entry);
-    
+
     switch (entry.level) {
       case 'debug':
         if (this.isDevelopment) console.debug(message, entry.data);
@@ -48,13 +40,10 @@ class Logger {
         console.error(message, entry.data);
         break;
     }
-
-    // Store in localStorage for debugging
     if (this.isDevelopment) {
       try {
         localStorage.setItem('chesscraft_logs', JSON.stringify(this.logs));
       } catch {
-        // Ignore storage errors
       }
     }
   }
@@ -109,7 +98,6 @@ class Logger {
       try {
         localStorage.removeItem('chesscraft_logs');
       } catch {
-        // Ignore storage errors
       }
     }
   }

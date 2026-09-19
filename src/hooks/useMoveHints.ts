@@ -144,7 +144,7 @@ export const useMoveHints = ({ fen, canMove, onMove, lastMove, inCheck }: UseMov
         const king = findKingSquare(chess, chess.turn());
         if (king) styles[king] = { ...styles[king], ...CHECK };
       } catch {
-        /* ignore invalid fen */
+
       }
     }
 

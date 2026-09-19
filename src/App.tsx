@@ -5,26 +5,13 @@ import { Sidebar } from './components/Sidebar';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { getCache, setCache } from './service/cache';
 import { createOrUpdateUser, loadActiveSession, clearActiveSession } from './service/userService';
-
-// Lazy loading de componentes pesados
+import { startAmbientMusic } from './utils/audio';
 const DashboardHome = lazy(() => import('./features/dashboard/DashboardHome'));
 const GameArenaAI = lazy(() => import('./features/game/GameArenaIA'));
 const GameArenaLocal = lazy(() => import('./features/game/GameArenaLocal'));
 const LobbyModal = lazy(() => import('./features/multiplayer/LobbyModal'));
 const OnlineGame = lazy(() => import('./features/multiplayer/OnlineGame'));
 const PuzzlesArena = lazy(() => import('./features/puzzles/PuzzleArena'));
-const Tournaments = lazy(() => import('./features/tournaments/Tournaments'));
-
-export interface BotOpponent {
-  id: number;
-  name: string;
-  title: string;
-  level: string;
-  elo: string;
-  desc: string;
-  color: string;
-  badge: string;
-}
 
 export const App: React.FC = () => {
   const saved = loadActiveSession();
@@ -40,9 +27,9 @@ export const App: React.FC = () => {
   } | null>(null);
 
   const handleStartOnlineGame = (
-    roomId: string, 
-    isCreator: boolean = false, 
-    creatorColor: 'w' | 'b' = 'w', 
+    roomId: string,
+    isCreator: boolean = false,
+    creatorColor: 'w' | 'b' = 'w',
     initialTime: number = 300
   ) => {
     setOnlineGameConfig({ roomId, isCreator, creatorColor, initialTime });
@@ -63,14 +50,14 @@ export const App: React.FC = () => {
       await createOrUpdateUser(name);
       setPlayerName(name);
       setShowWelcome(false);
+      if (getCache('prefs:soundOn') !== false && getCache('prefs:musicChoice') !== 'off') startAmbientMusic((getCache('prefs:musicChoice') as 'random') ?? 'random');
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
       setPlayerName(name);
       setShowWelcome(false);
+      if (getCache('prefs:soundOn') !== false && getCache('prefs:musicChoice') !== 'off') startAmbientMusic((getCache('prefs:musicChoice') as 'random') ?? 'random');
     }
   };
-
-  // Theme handling (persisted)
   const [theme, setThemeState] = useState<'light' | 'dark'>(() => (getCache('prefs:theme') as 'light' | 'dark') ?? 'dark');
 
   const applyTheme = (t: 'light' | 'dark') => {
@@ -84,22 +71,22 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // apply cached theme on mount
-    const cached = (getCache('prefs:theme') as 'light' | 'dark') ?? theme;
-    applyTheme(cached);
+    const cached = (getCache('prefs:theme') as 'light' | 'dark') ?? 'dark';
+    document.documentElement.setAttribute('data-theme', cached);
+    setCache('prefs:theme', cached);
     document.documentElement.dataset.reducedMotion = String(getCache('prefs:reducedMotion') === true);
     document.documentElement.dataset.highContrast = String(getCache('prefs:highContrast') === true);
     document.documentElement.dataset.boardTheme = String(getCache('prefs:boardTheme') ?? 'classic');
-    const accent = getCache('prefs:accent');
-    const accentValues: Record<string, [string, string]> = {
-      gold: ['#d4a054', '212, 160, 84'], blue: ['#5b9bd5', '91, 155, 213'],
-      green: ['#69a86d', '105, 168, 109'], violet: ['#a77bd6', '167, 123, 214'],
+    const resumeMusic = () => {
+      const musicChoice = getCache('prefs:musicChoice');
+      if (getCache('prefs:soundOn') !== false && musicChoice !== 'off') startAmbientMusic((musicChoice as 'random') ?? 'random');
     };
-    if (typeof accent === 'string' && accentValues[accent]) {
-      document.documentElement.style.setProperty('--brand', accentValues[accent][0]);
-      document.documentElement.style.setProperty('--brand-rgb', accentValues[accent][1]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    window.addEventListener('pointerdown', resumeMusic, { once: true });
+    window.addEventListener('keydown', resumeMusic, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', resumeMusic);
+      window.removeEventListener('keydown', resumeMusic);
+    };
   }, []);
 
   const handleSignOut = () => {
@@ -138,7 +125,32 @@ export const App: React.FC = () => {
                 />
               )}
               {currentTab === 'puzzles' && <PuzzlesArena />}
-              {currentTab === 'tournaments' && <Tournaments />}
+              {currentTab === 'upcoming' && (
+                <section className="upcoming-page" aria-labelledby="upcoming-title">
+                  <span className="card-kicker">NOVO</span>
+                  <h1 id="upcoming-title">Em breve</h1>
+                  <p>
+                    Estamos preparando novas formas de jogar e acompanhar sua evolução.
+                  </p>
+                  <div className="upcoming-grid">
+                    <article>
+                      <h2>Desafios semanais</h2>
+                      <p>Metas táticas e partidas especiais para treinar toda semana.</p>
+                    </article>
+                    <article>
+                      <h2>Temporadas</h2>
+                      <p>Uma forma organizada de acompanhar progresso e resultados.</p>
+                    </article>
+                    <article>
+                      <h2>Partidas com amigos</h2>
+                      <p>Melhorias para convidar e jogar com quem você conhece.</p>
+                    </article>
+                  </div>
+                  <button type="button" className="btn btn-primary" onClick={() => setCurrentTab('dashboard')}>
+                    Voltar ao início
+                  </button>
+                </section>
+              )}
               {currentTab === 'vs-online' && onlineGameConfig && (
                 <div>
                   <button
@@ -148,7 +160,7 @@ export const App: React.FC = () => {
                   >
                     Sair da sala
                   </button>
-                  <OnlineGame roomId={onlineGameConfig.roomId} isCreator={onlineGameConfig.isCreator} creatorColor={onlineGameConfig.creatorColor} initialTime={onlineGameConfig.initialTime} />
+                  <OnlineGame roomId={onlineGameConfig.roomId} isCreator={onlineGameConfig.isCreator} creatorColor={onlineGameConfig.creatorColor} initialTime={onlineGameConfig.initialTime} onGoHome={() => { setOnlineGameConfig(null); setCurrentTab('dashboard'); }} />
                 </div>
               )}
             </Suspense>

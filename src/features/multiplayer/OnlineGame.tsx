@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChessBoardView } from '../../components/ChessBoardView';
 import { useMoveHints } from '../../hooks/useMoveHints';
 import { useOnlineGame } from '../../hooks/useOnlineGame';
 import { Chat } from '../../components/Chat';
-import { getUserId, loadActiveSession } from '../../service/userService';
+import { getUserId, loadActiveSession, recordGameResult, type RecordedGameOutcome } from '../../service/userService';
+import { GameOverModal } from '../../components/GameOverModal';
 
 interface OnlineGameProps {
   roomId: string;
   isCreator: boolean;
   creatorColor?: 'w' | 'b';
   initialTime?: number;
+  onGoHome?: () => void;
 }
 
 export const OnlineGame: React.FC<OnlineGameProps> = ({
@@ -17,6 +19,7 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
   isCreator,
   creatorColor = 'w',
   initialTime = 300,
+  onGoHome,
 }) => {
   const {
     fen,
@@ -34,6 +37,8 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
   } = useOnlineGame(roomId, isCreator, creatorColor, initialTime);
 
   const [copied, setCopied] = useState(false);
+  const [outcome, setOutcome] = useState<RecordedGameOutcome | null>(null);
+  const recordedRef = useRef(false);
   const activeSession = loadActiveSession();
   const chatName = activeSession?.name ?? 'Jogador';
 
@@ -58,6 +63,18 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
   };
 
   const isMyTurn = turn === myColor;
+  const isDraw = gameOverReason.toLowerCase().includes('empate');
+
+  useEffect(() => {
+    if (!isGameOver || !colorReady || recordedRef.current) return;
+    recordedRef.current = true;
+    const winner = turn === 'w' ? 'b' : 'w';
+    const result: RecordedGameOutcome['result'] = isDraw ? 'draw' : winner === myColor ? 'win' : 'loss';
+    const recordKey = `chesscraft_online_recorded_${roomId}_${getUserId(chatName)}`;
+    if (sessionStorage.getItem(recordKey)) return;
+    sessionStorage.setItem(recordKey, '1');
+    void recordGameResult(getUserId(chatName), result, 'Oponente online', 'human').then(setOutcome);
+  }, [isGameOver, colorReady, turn, myColor, isDraw, roomId, chatName]);
 
   if (!isCreator && !colorReady) {
     return (
@@ -139,6 +156,7 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
         </strong>
       </div>
       <Chat roomId={roomId} currentUserId={getUserId(chatName)} currentUserName={chatName} />
+      {outcome && <GameOverModal outcome={outcome} opponentName="Oponente online" gameOverReason={gameOverReason} onHome={onGoHome ?? (() => undefined)} />}
     </section>
   );
 };

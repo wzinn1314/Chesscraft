@@ -45,6 +45,7 @@ export const ChessBoardView: React.FC<ChessBoardViewProps> = ({
       <Chessboard
         position={fen}
         onPieceDrop={onPieceDrop}
+        onPromotionCheck={() => false}
         onSquareClick={onSquareClick}
         onPieceDragBegin={onPieceDragBegin}
         customSquareStyles={customSquareStyles}

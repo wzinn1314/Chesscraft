@@ -23,7 +23,6 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
 
   const handleJoinRoom = () => {
     if (inputRoomId.trim()) {
-      // A cor do convidado vem da sala no Firebase (oposta à do criador).
       onStartGame(inputRoomId.trim().toUpperCase(), false, 'w', 300);
     }
   };
@@ -101,8 +100,8 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
         {mode === 'create' && (
           <>
             <h3 style={{ margin: 0 }}>Configurar Sala</h3>
-            
-            {/* Cor das Peças */}
+
+
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#a8a39d' }}>
                 Jogar de:
@@ -143,7 +142,7 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
               </div>
             </div>
 
-            {/* Tempo do Jogo */}
+
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#a8a39d' }}>
                 Tempo por jogador:
@@ -181,7 +180,7 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({ onStartGame, onCancel })
             >
               Iniciar e Gerar Código
             </button>
-            
+
             <button
               onClick={() => setMode('menu')}
               style={{ backgroundColor: 'transparent', color: '#78736c', border: 'none', cursor: 'pointer' }}

@@ -4,8 +4,6 @@ import { getCache, setCache } from './cache';
 const PUZZLES_CACHE_KEY = 'chesscraft_puzzles';
 const ATTEMPTS_CACHE_KEY = 'chesscraft_puzzle_attempts';
 const STATS_CACHE_KEY = 'chesscraft_puzzle_stats';
-
-// Puzzles de exemplo (FENs reais de puzzles famosos)
 const SAMPLE_PUZZLES: Puzzle[] = [
   {
     id: 'mate-in-1-1',
@@ -95,8 +93,6 @@ export const puzzleService = {
     if (cached && cached.length > 0) {
       return cached;
     }
-    
-    // Se não houver cache, usa puzzles de exemplo
     setCache(PUZZLES_CACHE_KEY, SAMPLE_PUZZLES);
     return SAMPLE_PUZZLES;
   },
@@ -112,10 +108,10 @@ export const puzzleService = {
   },
 
   getRandomPuzzle: (difficulty?: Puzzle['difficulty']): Puzzle => {
-    const puzzles = difficulty 
+    const puzzles = difficulty
       ? puzzleService.getPuzzlesByDifficulty(difficulty)
       : puzzleService.getPuzzles();
-    
+
     const randomIndex = Math.floor(Math.random() * puzzles.length);
     return puzzles[randomIndex];
   },
@@ -124,13 +120,13 @@ export const puzzleService = {
     if (userMoves.length !== puzzle.moves.length) {
       return false;
     }
-    
+
     for (let i = 0; i < userMoves.length; i++) {
       if (userMoves[i] !== puzzle.moves[i]) {
         return false;
       }
     }
-    
+
     return true;
   },
 
@@ -157,8 +153,6 @@ export const puzzleService = {
     if (cached) {
       return cached;
     }
-    
-    // Stats iniciais
     const initialStats: PuzzleStats = {
       totalSolved: 0,
       totalAttempted: 0,
@@ -171,7 +165,7 @@ export const puzzleService = {
         hard: { solved: 0, attempted: 0 }
       }
     };
-    
+
     setCache(STATS_CACHE_KEY, initialStats);
     return initialStats;
   },
@@ -179,32 +173,30 @@ export const puzzleService = {
   updateStats: (attempt: PuzzleAttempt): void => {
     const stats = puzzleService.getStats();
     const puzzle = puzzleService.getPuzzleById(attempt.puzzleId);
-    
+
     if (!puzzle) return;
-    
+
     stats.totalAttempted++;
     stats.byDifficulty[puzzle.difficulty].attempted++;
-    
+
     if (attempt.solved) {
       stats.totalSolved++;
       stats.currentStreak++;
       stats.byDifficulty[puzzle.difficulty].solved++;
-      
+
       if (stats.currentStreak > stats.bestStreak) {
         stats.bestStreak = stats.currentStreak;
       }
     } else {
       stats.currentStreak = 0;
     }
-    
-    // Calcular tempo médio
     const attempts = puzzleService.getAttempts();
     const solvedAttempts = attempts.filter(a => a.solved);
     if (solvedAttempts.length > 0) {
       const totalTime = solvedAttempts.reduce((sum, a) => sum + a.timeSpent, 0);
       stats.averageTime = totalTime / solvedAttempts.length;
     }
-    
+
     setCache(STATS_CACHE_KEY, stats);
   },
 
@@ -221,7 +213,7 @@ export const puzzleService = {
         hard: { solved: 0, attempted: 0 }
       }
     };
-    
+
     setCache(STATS_CACHE_KEY, initialStats);
     setCache(ATTEMPTS_CACHE_KEY, []);
   }

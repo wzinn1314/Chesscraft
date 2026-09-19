@@ -37,21 +37,19 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
     const cached = getCache(cacheKey(roomId));
     setMessages(Array.isArray(cached) ? cached as ChatMessage[] : []);
     const chatRef = ref(database, `chat/${roomId}`);
-    
+
     onValue(chatRef, (snapshot) => {
       setConnection('online');
       if (snapshot.exists()) {
         const messagesData = snapshot.val() as Record<string, ChatMessage>;
         const messagesArray = Object.values(messagesData).sort((a, b) => a.timestamp - b.timestamp);
         setMessages(messagesArray);
-        
-        // Auto-scroll to bottom
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       }
     }, () => setConnection('local'));
-    
+
     return () => {
       off(chatRef);
     };
@@ -65,7 +63,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
 
   const sendMessage = async (message: string, type: 'text' | 'quick' = 'text') => {
     if (!message.trim()) return;
-    
+
     const chatMessage: ChatMessage = {
       id: `${currentUserId}-${Date.now()}`,
       roomId,
@@ -89,9 +87,9 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
       const chatRef = ref(database, `chat/${roomId}`);
       const newMessageRef = push(chatRef);
       await set(newMessageRef, { ...chatMessage, id: newMessageRef.key! });
-      
+
       logger.info('Mensagem enviada', 'Chat', { roomId, userId: currentUserId });
-      
+
       if (type === 'text') {
         setNewMessage('');
       }
@@ -161,26 +159,26 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
   }
 
   return (
-    <div style={{ 
-      position: 'fixed', 
-      bottom: '20px', 
-      right: '20px', 
-      width: '360px', 
+    <div style={{
+      position: 'fixed',
+      bottom: '20px',
+      right: '20px',
+      width: '360px',
       maxHeight: '500px',
       zIndex: 1000,
       display: 'flex',
       flexDirection: 'column',
     }}>
-      <Card variant="elevated" padding="md" style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <Card variant="elevated" padding="md" style={{
+        display: 'flex',
+        flexDirection: 'column',
         height: '100%',
         maxHeight: '500px',
       }}>
-        {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '12px',
           paddingBottom: '12px',
@@ -200,11 +198,11 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
         </div>
         {connection === 'local' && (
           <p style={{ color: '#d4a054', fontSize: '11px', margin: '0 0 8px' }}>
-            Mensagens salvas neste dispositivo. A conexão da sala não está disponível.
+            Não foi possível conectar ao chat desta sala no momento.
           </p>
         )}
 
-        {/* Messages */}
+
         <div style={{
           flex: 1,
           overflowY: 'auto',
@@ -216,9 +214,9 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
           maxHeight: '300px',
         }}>
           {messages.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              color: '#78736c', 
+            <div style={{
+              textAlign: 'center',
+              color: '#78736c',
               padding: '20px',
               fontSize: '14px',
             }}>
@@ -228,7 +226,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
             messages.map((msg) => {
               const isOwnMessage = msg.userId === currentUserId;
               const isSystem = msg.type === 'system';
-              
+
               return (
                 <div
                   key={msg.id}
@@ -240,15 +238,15 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
                 >
                   <div style={{
                     maxWidth: '80%',
-                    backgroundColor: isSystem 
-                      ? 'transparent' 
-                      : isOwnMessage 
-                        ? '#e58e26' 
+                    backgroundColor: isSystem
+                      ? 'transparent'
+                      : isOwnMessage
+                        ? '#e58e26'
                         : '#2d2b27',
-                    color: isSystem 
-                      ? '#78736c' 
-                      : isOwnMessage 
-                        ? '#161512' 
+                    color: isSystem
+                      ? '#78736c'
+                      : isOwnMessage
+                        ? '#161512'
                         : '#f3efe6',
                     padding: isSystem ? '4px 8px' : '8px 12px',
                     borderRadius: isSystem ? '0' : '12px',
@@ -257,9 +255,9 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
                     fontStyle: isSystem ? 'italic' : 'normal',
                   }}>
                     {!isOwnMessage && !isSystem && (
-                      <div style={{ 
-                        fontSize: '11px', 
-                        fontWeight: 700, 
+                      <div style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
                         marginBottom: '4px',
                         color: isOwnMessage ? '#161512' : '#e58e26',
                       }}>
@@ -267,9 +265,9 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
                       </div>
                     )}
                     <div>{msg.message}</div>
-                    <div style={{ 
-                      fontSize: '10px', 
-                      marginTop: '4px', 
+                    <div style={{
+                      fontSize: '10px',
+                      marginTop: '4px',
                       opacity: 0.7,
                     }}>
                       {formatTime(msg.timestamp)}
@@ -282,11 +280,11 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Mensagens rápidas */}
+
         <div style={{ marginBottom: '8px' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '4px', 
+          <div style={{
+            display: 'flex',
+            gap: '4px',
             flexWrap: 'wrap',
             padding: '8px',
             backgroundColor: '#1c1b18',
@@ -314,7 +312,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
           </div>
         </div>
 
-        {/* Input */}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px' }}>
           <input
             ref={inputRef}
@@ -334,9 +332,9 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, currentUserNa
             }}
             aria-label="Mensagem"
           />
-          <Button 
-            type="submit" 
-            variant="primary" 
+          <Button
+            type="submit"
+            variant="primary"
             size="sm"
             disabled={!newMessage.trim()}
           >

@@ -1,6 +1,4 @@
 import { Chess } from 'chess.js';
-
-// Valores base das peças (mais sofisticados)
 const pieceValues: { [key: string]: number } = {
   p: 100,
   n: 320,
@@ -9,8 +7,6 @@ const pieceValues: { [key: string]: number } = {
   q: 900,
   k: 20000
 };
-
-// Tabelas de avaliação posicional (centro-valoration)
 const pawnTable = [
   [0,  0,  0,  0,  0,  0,  0,  0],
   [50, 50, 50, 50, 50, 50, 50, 50],
@@ -87,17 +83,13 @@ const kingEndgameTable = [
   [-30,-30,  0,  0,  0,  0,-30,-30],
   [-50,-30,-30,-30,-30,-30,-30,-50]
 ];
-
-// Configurações de dificuldade
 export const difficultySettings = {
-  easy: { depth: 1, randomness: 0.3 },
-  medium: { depth: 2, randomness: 0.15 },
-  hard: { depth: 3, randomness: 0.05 },
-  // Profundidade 3 mantém a partida fluida no navegador, inclusive em posições abertas.
-  expert: { depth: 3, randomness: 0.0 }
+  beginner: { depth: 1, randomness: 0.85 },
+  easy: { depth: 1, randomness: 0.45 },
+  medium: { depth: 2, randomness: 0.2 },
+  hard: { depth: 2, randomness: 0.05 },
+  expert: { depth: 2, randomness: 0.0 },
 };
-
-// Função para obter tabela posicional
 const getPositionTable = (pieceType: string, isEndgame: boolean): number[][] => {
   switch (pieceType) {
     case 'p': return pawnTable;
@@ -109,13 +101,9 @@ const getPositionTable = (pieceType: string, isEndgame: boolean): number[][] => 
     default: return Array(8).fill(Array(8).fill(0));
   }
 };
-
-// Avaliação de posição avançada
 const evaluateBoard = (game: Chess): number => {
   let score = 0;
   const board = game.board();
-  
-  // Contar material total para determinar se é final
   let totalMaterial = 0;
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
@@ -125,7 +113,7 @@ const evaluateBoard = (game: Chess): number => {
       }
     }
   }
-  const isEndgame = totalMaterial < 2300; // Menos que duas damas + peças menores
+  const isEndgame = totalMaterial < 2300;
 
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
@@ -133,14 +121,12 @@ const evaluateBoard = (game: Chess): number => {
       if (piece) {
         const pieceValue = pieceValues[piece.type];
         const posTable = getPositionTable(piece.type, isEndgame);
-        
-        // Posição na tabela (invertida para pretas)
         const tableRow = piece.color === 'w' ? row : 7 - row;
         const tableCol = piece.color === 'w' ? col : 7 - col;
         const positionValue = posTable[tableRow][tableCol];
-        
+
         const totalValue = pieceValue + positionValue;
-        
+
         if (piece.color === 'w') {
           score += totalValue;
         } else {
@@ -149,47 +135,33 @@ const evaluateBoard = (game: Chess): number => {
       }
     }
   }
-  
-  // Bônus por mobilidade
   const moves = game.moves({ verbose: true });
   score += moves.length * 2;
-  
-  // Penalidade por rei exposto
   if (game.inCheck()) {
     score += game.turn() === 'w' ? -50 : 50;
   }
-  
+
   return score;
 };
-
-// Ordenação de movimentos para alpha-beta pruning
 const orderMoves = (_game: Chess, moves: any[]): any[] => {
   return moves.sort((a, b) => {
     let scoreA = 0;
     let scoreB = 0;
-    
-    // Priorizar capturas
     if (a.captured) scoreA += pieceValues[a.captured] * 10;
     if (b.captured) scoreB += pieceValues[b.captured] * 10;
-    
-    // Priorizar promoções
     if (a.promotion) scoreA += pieceValues[a.promotion] * 5;
     if (b.promotion) scoreB += pieceValues[b.promotion] * 5;
-    
-    // Priorizar xeques
     if (a.san.includes('+')) scoreA += 50;
     if (b.san.includes('+')) scoreB += 50;
-    
+
     return scoreB - scoreA;
   });
 };
-
-// Algoritmo Minimax com Alpha-Beta Pruning
 const minimax = (
-  game: Chess, 
-  depth: number, 
-  alpha: number, 
-  beta: number, 
+  game: Chess,
+  depth: number,
+  alpha: number,
+  beta: number,
   isMaximizing: boolean
 ): number => {
   if (depth === 0 || game.isGameOver()) {
@@ -223,36 +195,32 @@ const minimax = (
     return minEval;
   }
 };
-
-// Encontrar melhor movimento
 export const findBestMove = (game: Chess, difficulty: keyof typeof difficultySettings): string | null => {
   const settings = difficultySettings[difficulty];
   const moves = game.moves({ verbose: true });
-  
+
   if (moves.length === 0) return null;
-  
-  // Adicionar aleatoriedade baseado na dificuldade
   if (Math.random() < settings.randomness) {
     const randomMove = moves[Math.floor(Math.random() * moves.length)];
     return randomMove.from + randomMove.to;
   }
-  
+
   let bestMove = null;
   let bestValue = isMaximizingPlayer(game) ? -Infinity : Infinity;
-  
+
   const orderedMoves = orderMoves(game, moves);
-  
+
   for (const move of orderedMoves) {
     game.move(move);
     const boardValue = minimax(
-      game, 
-      settings.depth - 1, 
-      -Infinity, 
-      Infinity, 
+      game,
+      settings.depth - 1,
+      -Infinity,
+      Infinity,
       !isMaximizingPlayer(game)
     );
     game.undo();
-    
+
     if (isMaximizingPlayer(game)) {
       if (boardValue > bestValue) {
         bestValue = boardValue;
@@ -265,15 +233,13 @@ export const findBestMove = (game: Chess, difficulty: keyof typeof difficultySet
       }
     }
   }
-  
+
   return bestMove ? bestMove.from + bestMove.to : null;
 };
 
 const isMaximizingPlayer = (game: Chess): boolean => {
   return game.turn() === 'w';
 };
-
-// Função simplificada para compatibilidade com código existente
 export const getAIMove = (game: Chess, difficulty: keyof typeof difficultySettings = 'medium'): string | null => {
   return findBestMove(game, difficulty);
 };

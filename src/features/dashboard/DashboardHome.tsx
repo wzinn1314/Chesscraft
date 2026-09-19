@@ -53,7 +53,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
   }, [playerName]);
 
   const initial = (playerName.trim()[0] || '?').toUpperCase();
-  const rating = stats?.rating ?? 1200;
+  const rating = stats?.rating ?? 150;
   const winRate = stats ? getWinRate(stats) : 0;
 
   const resultLabel = (result: GameResult['result']) => {
@@ -91,7 +91,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
                   Olá, {playerName}
                 </h1>
                 <p style={{ color: theme.colors.textSecondary, margin: 0, fontSize: '15px' }}>
-                  Seu perfil e pontos ficam salvos neste dispositivo.
+                  Acompanhe sua evolução e escolha sua próxima partida.
                 </p>
               </div>
             </div>
@@ -285,7 +285,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ playerName, onSele
               </div>
               <div>
                 <h3 style={{ color: theme.colors.textPrimary, margin: 0, fontSize: '18px', fontWeight: 800 }}>{playerName}</h3>
-                <span style={{ color: theme.colors.primary, fontSize: '12px', fontWeight: 700 }}>SALVO NO DISPOSITIVO</span>
+                <span style={{ color: theme.colors.primary, fontSize: '12px', fontWeight: 700 }}>PERFIL ATIVO</span>
               </div>
             </div>
 

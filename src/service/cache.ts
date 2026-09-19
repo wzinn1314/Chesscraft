@@ -1,4 +1,3 @@
-// Simple device-local cache using localStorage with optional TTL
 export const setCache = (key: string, value: any, ttlSeconds?: number) => {
   try {
     const payload: any = { v: value };

@@ -39,11 +39,9 @@ describe('chessAI', () => {
   describe('findBestMove', () => {
     it('should return null when no moves available', () => {
       const game = new Chess();
-      // Create a position with no legal moves (stalemate)
       game.load('7k/8/8/8/8/8/8/7K w - - 0 1');
-      
+
       const move = findBestMove(game, 'easy');
-      // The position might still have king moves, so we just check it returns a valid move or null
       if (move) {
         expect(move).toMatch(/^[a-h][1-8][a-h][1-8][qnrb]?$/);
       }
@@ -52,7 +50,7 @@ describe('chessAI', () => {
     it('should return a valid move string when moves available', () => {
       const game = new Chess();
       const move = findBestMove(game, 'easy');
-      
+
       if (move) {
         expect(move).toMatch(/^[a-h][1-8][a-h][1-8][qnrb]?$/);
       }
@@ -61,9 +59,8 @@ describe('chessAI', () => {
     it('should return move in correct format', () => {
       const game = new Chess();
       const move = findBestMove(game, 'medium');
-      
+
       if (move) {
-        // Should be 4 characters (from + to) or 5 with promotion
         expect(move.length).toBeGreaterThanOrEqual(4);
         expect(move.length).toBeLessThanOrEqual(5);
       }
@@ -71,12 +68,10 @@ describe('chessAI', () => {
 
     it('should handle different difficulty levels', () => {
       const game = new Chess();
-      
+
       const easyMove = findBestMove(game, 'easy');
       const mediumMove = findBestMove(game, 'medium');
       const hardMove = findBestMove(game, 'hard');
-      
-      // All should return valid moves or null
       [easyMove, mediumMove, hardMove].forEach(move => {
         if (move) {
           expect(move).toMatch(/^[a-h][1-8][a-h][1-8][qnrb]?$/);
@@ -89,25 +84,21 @@ describe('chessAI', () => {
     it('should handle starting position', () => {
       const game = new Chess();
       const move = findBestMove(game, 'easy');
-      
-      // In starting position, should return a move
       expect(move).toBeTruthy();
     });
 
     it('should handle endgame position', () => {
       const game = new Chess();
-      // Simple king and pawn endgame
       game.load('8/8/8/8/8/5k2/4P3/4K3 w - - 0 1');
-      
+
       const move = findBestMove(game, 'medium');
       expect(move).toBeTruthy();
     });
 
     it('should handle tactical position', () => {
       const game = new Chess();
-      // Position with tactical opportunities
       game.load('r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3');
-      
+
       const move = findBestMove(game, 'medium');
       expect(move).toBeTruthy();
     });

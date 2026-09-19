@@ -57,12 +57,9 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
       const userMove = `${from}${to}${promotion || ''}`;
       const newMoves = [...userMoves, userMove];
       setUserMoves(newMoves);
-
-      // Verificar se o movimento está correto
       const isCorrect = userMove === expectedMove;
-      
+
       if (!isCorrect) {
-        // Movimento incorreto
         setIsFailed(true);
         const attempt: PuzzleAttempt = {
           puzzleId: puzzle.id,
@@ -75,16 +72,12 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
         refreshStats();
         logger.warn('Movimento incorreto', 'usePuzzle', { puzzleId: puzzle.id, move: userMove, expected: expectedMove });
         options.onFail?.(puzzle);
-        
-        // Desfazer movimento incorreto
         chess.undo();
         return false;
       }
 
       const nextIndex = currentMoveIndex + 1;
       setCurrentMoveIndex(nextIndex);
-
-      // Verificar se puzzle foi resolvido
       if (nextIndex >= puzzle.moves.length) {
         setIsSolved(true);
         const attempt: PuzzleAttempt = {
@@ -100,14 +93,12 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
         options.onSolve?.(puzzle);
         return true;
       }
-
-      // Fazer o movimento do oponente (se houver)
       const opponentMove = puzzleService.getNextPuzzleMove(puzzle, nextIndex);
       if (opponentMove) {
         const fromSquare = opponentMove.substring(0, 2);
         const toSquare = opponentMove.substring(2, 4);
         const promotionPiece = opponentMove.length > 4 ? opponentMove[4] : undefined;
-        
+
         chess.move({ from: fromSquare, to: toSquare, promotion: promotionPiece });
         setCurrentMoveIndex(nextIndex + 1);
       }
@@ -121,7 +112,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
 
   const resetPuzzle = useCallback(() => {
     if (!puzzle) return;
-    
+
     chess.load(puzzle.fen);
     setCurrentMoveIndex(0);
     setIsSolved(false);
@@ -132,7 +123,7 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
 
   const skipPuzzle = useCallback(() => {
     if (!puzzle) return;
-    
+
     const attempt: PuzzleAttempt = {
       puzzleId: puzzle.id,
       solved: false,
@@ -147,16 +138,14 @@ export const usePuzzle = (options: UsePuzzleOptions = {}) => {
 
   const getHint = useCallback((): string | null => {
     if (!puzzle || isSolved || isFailed) return null;
-    
+
     const expectedMove = puzzleService.getNextPuzzleMove(puzzle, currentMoveIndex);
     if (!expectedMove) return null;
-    
+
     const from = expectedMove.substring(0, 2);
     const to = expectedMove.substring(2, 4);
     return `${from}-${to}`;
   }, [puzzle, currentMoveIndex, isSolved, isFailed]);
-
-  // Carregar puzzle inicial
   useEffect(() => {
     loadNewPuzzle();
   }, [loadNewPuzzle]);

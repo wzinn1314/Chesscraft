@@ -23,13 +23,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
-    // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-
-    // Log error to service (could be expanded to send to error tracking service)
     this.logError(error, errorInfo);
   }
 
@@ -42,12 +38,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       userAgent: navigator.userAgent,
       url: window.location.href,
     };
-
-    // Store in localStorage for debugging
     try {
       const errorLog = JSON.parse(localStorage.getItem('chesscraft_error_log') || '[]');
       errorLog.push(errorData);
-      // Keep only last 10 errors
       if (errorLog.length > 10) {
         errorLog.shift();
       }
@@ -93,7 +86,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <p style={{ color: '#bab4ab', margin: '0 0 24px', fontSize: '15px', lineHeight: '1.5' }}>
               Ocorreu um erro inesperado. Por favor, tente recarregar a página.
             </p>
-            
+
             {this.state.error && (
               <details style={{
                 textAlign: 'left',
@@ -113,7 +106,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 </pre>
               </details>
             )}
-            
+
             <button
               onClick={this.handleReset}
               style={{

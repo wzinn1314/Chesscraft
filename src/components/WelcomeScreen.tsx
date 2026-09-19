@@ -7,8 +7,6 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onWelcome }) => {
   const [playerName, setPlayerName] = useState('');
-
-  // main logo placed in public folder; using the requested logo
   const mainLogo = '/Gemini_Generated_Image_o5ngkwo5ngkwo5ng-removebg-preview.png';
 
   useEffect(() => {
@@ -20,7 +18,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onWelcome }) => {
     e.preventDefault();
     const name = playerName.trim();
     if (name) {
-      setCache('playerName', name); // save to device cache
+      setCache('playerName', name);
       onWelcome(name);
     }
   };
@@ -29,7 +27,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onWelcome }) => {
     <div className="welcome-overlay">
       <div className="welcome-card">
         <div className="welcome-header">
-          {/* Main logo */}
+
           <img src={mainLogo} alt="ChessCraft Logo" className="logo logo--welcome-main" />
         </div>
 

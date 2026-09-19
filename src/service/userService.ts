@@ -66,16 +66,21 @@ const defaultUser = (name: string): UserStats => ({
   losses: 0,
   draws: 0,
   totalGames: 0,
-  rating: 1200,
+  rating: 150,
   createdAt: Date.now(),
   lastActive: Date.now(),
 });
+
+const migrateLegacyRating = (stats: UserStats): UserStats =>
+  stats.rating === 1200 ? { ...stats, rating: 150 } : stats;
 
 const readCachedUser = (userId: string): UserStats | null => {
   const stored = localStorage.getItem(userKey(userId));
   if (!stored) return null;
   try {
-    return JSON.parse(stored) as UserStats;
+    const stats = migrateLegacyRating(JSON.parse(stored) as UserStats);
+    localStorage.setItem(userKey(userId), JSON.stringify(stats));
+    return stats;
   } catch {
     return null;
   }
@@ -145,7 +150,12 @@ export const createOrUpdateUser = async (name: string): Promise<string> => {
   const userId = getUserId(name);
   const existing = readCachedUser(userId);
   const stats = existing
-    ? { ...existing, name, lastActive: Date.now() }
+    ? {
+        ...migrateLegacyRating(existing),
+        name,
+        lastActive: Date.now(),
+        rating: migrateLegacyRating(existing).rating,
+      }
     : defaultUser(name);
 
   writeCachedUser(userId, stats);
@@ -156,7 +166,7 @@ export const createOrUpdateUser = async (name: string): Promise<string> => {
       const userRef = ref(database, `users/${userId}`);
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
-        await update(userRef, { lastActive: Date.now(), name });
+        await update(userRef, { lastActive: Date.now(), name, rating: stats.rating });
       } else {
         await set(userRef, stats);
       }
@@ -250,7 +260,7 @@ export const getUserStats = async (userId: string): Promise<UserStats | null> =>
   try {
     const snapshot = await get(ref(database, `users/${userId}`));
     if (snapshot.exists()) {
-      const stats = snapshot.val() as UserStats;
+      const stats = migrateLegacyRating(snapshot.val() as UserStats);
       writeCachedUser(userId, stats);
       return stats;
     }
@@ -321,7 +331,7 @@ export const subscribeToUserStats = (
   const userRef = ref(database, `users/${userId}`);
   onValue(userRef, (snapshot) => {
     if (snapshot.exists()) {
-      const stats = snapshot.val() as UserStats;
+      const stats = migrateLegacyRating(snapshot.val() as UserStats);
       writeCachedUser(userId, stats);
       callback(stats);
     } else {

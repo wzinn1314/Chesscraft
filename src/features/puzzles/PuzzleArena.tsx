@@ -28,7 +28,7 @@ const theme = {
 export const PuzzlesArena: React.FC = () => {
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [showHint, setShowHint] = useState(false);
-  
+
   const {
     puzzle,
     chess,
@@ -41,7 +41,7 @@ export const PuzzlesArena: React.FC = () => {
     skipPuzzle,
     getHint,
     stats
-  } = usePuzzle({ 
+  } = usePuzzle({
     difficulty,
     onSolve: () => {
       setShowHint(false);
@@ -62,9 +62,8 @@ export const PuzzlesArena: React.FC = () => {
   };
 
   const handleSquareClick = (square: string) => {
-    // O arrastar é o método principal. O clique apenas seleciona uma jogada forçada.
     if (isSolved || isFailed) return;
-    
+
     const moves = chess.moves({ square: square as any, verbose: true });
     if (moves.length === 1) {
       makeMove(square, moves[0].to, moves[0].promotion);
@@ -72,7 +71,6 @@ export const PuzzlesArena: React.FC = () => {
   };
 
   const handlePieceDragBegin = (_piece: string, _square: string) => {
-    // Placeholder para drag begin
   };
 
   const customSquareStyles: Record<string, React.CSSProperties> = {};
@@ -81,7 +79,7 @@ export const PuzzlesArena: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }} role="main" aria-label="Arena de puzzles táticos">
-      {/* Header */}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '32px', color: theme.colors.textPrimary, margin: '0 0 4px 0', fontWeight: 800 }}>
@@ -91,23 +89,23 @@ export const PuzzlesArena: React.FC = () => {
             Resolva problemas táticos para melhorar sua visão de jogo.
           </p>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }} role="status" aria-live="polite">
-          <div style={{ 
-            backgroundColor: theme.colors.surface, 
-            padding: '10px 18px', 
-            borderRadius: theme.borderRadius.md, 
-            border: `1px solid ${theme.colors.border}` 
+          <div style={{
+            backgroundColor: theme.colors.surface,
+            padding: '10px 18px',
+            borderRadius: theme.borderRadius.md,
+            border: `1px solid ${theme.colors.border}`
           }}>
             <span style={{ color: theme.colors.textSecondary, fontSize: '13px' }}>Sequência: </span>
             <strong style={{ color: theme.colors.primary, fontSize: '16px' }}>{stats.currentStreak}</strong>
           </div>
-          
-          <div style={{ 
-            backgroundColor: theme.colors.surface, 
-            padding: '10px 18px', 
-            borderRadius: theme.borderRadius.md, 
-            border: `1px solid ${theme.colors.border}` 
+
+          <div style={{
+            backgroundColor: theme.colors.surface,
+            padding: '10px 18px',
+            borderRadius: theme.borderRadius.md,
+            border: `1px solid ${theme.colors.border}`
           }}>
             <span style={{ color: theme.colors.textSecondary, fontSize: '13px' }}>Resolvidos: </span>
             <strong style={{ color: theme.colors.success, fontSize: '16px' }}>{stats.totalSolved}</strong>
@@ -115,7 +113,7 @@ export const PuzzlesArena: React.FC = () => {
         </div>
       </div>
 
-      {/* Difficulty Selector */}
+
       <div style={{ display: 'flex', gap: '8px' }} role="group" aria-label="Seletor de dificuldade">
         {(['easy', 'medium', 'hard'] as const).map((diff) => (
           <Button
@@ -130,10 +128,10 @@ export const PuzzlesArena: React.FC = () => {
         ))}
       </div>
 
-      {/* Main Content */}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 560px) minmax(240px, 1fr)', gap: '28px', alignItems: 'start' }}>
-        
-        {/* Chess Board */}
+
+
         <div className="board-wrap">
           {loading ? (
             <div style={{
@@ -162,7 +160,7 @@ export const PuzzlesArena: React.FC = () => {
           )}
         </div>
 
-        {/* Puzzle Info Panel */}
+
         <Card variant="default" padding="lg" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {puzzle && (
             <>
@@ -266,7 +264,7 @@ export const PuzzlesArena: React.FC = () => {
         </Card>
       </div>
 
-      {/* Stats Overview */}
+
       <Card variant="default" padding="lg">
         <h3 style={{ color: theme.colors.textPrimary, margin: '0 0 16px', fontSize: '16px', fontWeight: 700 }}>
           Estatísticas
@@ -301,8 +299,8 @@ export const PuzzlesArena: React.FC = () => {
               TAXA DE SUCESSO
             </div>
             <div style={{ color: theme.colors.success, fontSize: '24px', fontWeight: 800 }}>
-              {stats.totalAttempted > 0 
-                ? Math.round((stats.totalSolved / stats.totalAttempted) * 100) 
+              {stats.totalAttempted > 0
+                ? Math.round((stats.totalSolved / stats.totalAttempted) * 100)
                 : 0}%
             </div>
           </div>
