@@ -35,7 +35,7 @@ const PROFILE_EVENT = 'chesscraft-profile-updated';
 
 const isFirebaseAvailable = () => {
   try {
-    return !!database && typeof window !== 'undefined';
+    return database !== null && database !== undefined;
   } catch {
     return false;
   }
@@ -147,10 +147,9 @@ export const createOrUpdateUser = async (name: string): Promise<string> => {
   writeCachedUser(userId, stats);
   saveActiveSession(name);
 
-  const db = database;
-  if (db) {
+  if (isFirebaseAvailable()) {
     try {
-      const userRef = ref(db, `users/${userId}`);
+      const userRef = ref(database, `users/${userId}`);
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
         await update(userRef, { lastActive: Date.now(), name });
@@ -200,11 +199,10 @@ export const recordGameResult = async (
     ratingChange,
   });
 
-  const db = database;
-  if (db) {
+  if (isFirebaseAvailable()) {
     try {
-      const userRef = ref(db, `users/${userId}`);
-      const gamesRef = ref(db, `users/${userId}/games`);
+      const userRef = ref(database, `users/${userId}`);
+      const gamesRef = ref(database, `users/${userId}/games`);
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
         await update(userRef, {
@@ -243,11 +241,10 @@ export const getUserStats = async (userId: string): Promise<UserStats | null> =>
   const cached = readCachedUser(userId);
   if (cached) return cached;
 
-  const db = database;
-  if (!db) return null;
+  if (!isFirebaseAvailable()) return null;
 
   try {
-    const snapshot = await get(ref(db, `users/${userId}`));
+    const snapshot = await get(ref(database, `users/${userId}`));
     if (snapshot.exists()) {
       const stats = snapshot.val() as UserStats;
       writeCachedUser(userId, stats);
@@ -279,10 +276,9 @@ export const getGlobalRanking = async (limit: number = 10): Promise<UserStats[]>
     }
   }
 
-  const db = database;
-  if (db) {
+  if (isFirebaseAvailable()) {
     try {
-      const snapshot = await get(ref(db, 'users'));
+      const snapshot = await get(ref(database, 'users'));
       if (snapshot.exists()) {
         const remote = Object.values(snapshot.val()) as UserStats[];
         remote.filter((u) => u.totalGames > 0).forEach((u) => {
@@ -314,12 +310,11 @@ export const subscribeToUserStats = (
   emit();
   const unsubCache = subscribeToProfileCache(emit);
 
-  const db = database;
-  if (!db) {
+  if (!isFirebaseAvailable()) {
     return unsubCache;
   }
 
-  const userRef = ref(db, `users/${userId}`);
+  const userRef = ref(database, `users/${userId}`);
   onValue(userRef, (snapshot) => {
     if (snapshot.exists()) {
       const stats = snapshot.val() as UserStats;
@@ -346,12 +341,11 @@ export const subscribeToRanking = (
   emit();
   const unsubCache = subscribeToProfileCache(emit);
 
-  const db = database;
-  if (!db) {
+  if (!isFirebaseAvailable()) {
     return unsubCache;
   }
 
-  const usersRef = ref(db, 'users');
+  const usersRef = ref(database, 'users');
   onValue(usersRef, () => emit());
   return () => {
     unsubCache();

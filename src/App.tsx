@@ -106,14 +106,9 @@ export const App: React.FC = () => {
       {showWelcome ? (
         <WelcomeScreen onWelcome={handleWelcome} />
       ) : (
-
         <div className="app-shell">
           <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
           <main className="app-main">
-
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#121214', color: '#ffffff', width: '100%', overflow: 'hidden' }}>
-          <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
-          <main style={{ flex: 1, minWidth: 0, height: '100vh', padding: '32px', overflowY: 'auto', boxSizing: 'border-box' }}>
             <Header playerName={playerName} />
             <Suspense fallback={<div style={{ color: '#f3efe6', padding: '20px' }}>Carregando...</div>}>
               {currentTab === 'dashboard' && (

@@ -15,28 +15,12 @@ export const GameArenaLocal: React.FC = () => {
   });
 
   return (
-
     <section className="page">
       <header className="page-head">
         <div>
           <p className="eyebrow">Mesa local</p>
           <h1>Passa e joga</h1>
           <p className="lede">Dois jogadores no mesmo dispositivo. Roque, en passant e promoção seguem as regras oficiais.</p>
-
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <h1 style={{ color: '#ffffff', marginBottom: '8px' }}>⚔️ Passa & Joga (Local)</h1>
-      <p style={{ color: '#a8a8b3', marginBottom: '24px' }}>Modo local para dois jogadores no mesmo dispositivo.</p>
-
-      <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', maxWidth: '520px' }}>
-          {/* @ts-ignore */}
-          <Chessboard 
-            position={fen} 
-            onPieceDrop={handlePieceDrop}
-            boardOrientation="white"
-            customBoardStyle={{ borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}
-          />
-
         </div>
       </header>
 

@@ -47,17 +47,10 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const handleCopyCode = async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(roomId);
-      }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-      alert('Copiar código não foi suportado neste navegador/WebView.');
-    }
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(roomId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const isMyTurn = turn === myColor;
@@ -119,7 +112,6 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
         </strong>
       </div>
 
-
       <div className="board-wrap">
         <ChessBoardView
           fen={fen}
@@ -133,19 +125,6 @@ export const OnlineGame: React.FC<OnlineGameProps> = ({
           pendingPromotion={hints.pendingPromotion}
           onPromote={hints.confirmPromotion}
           onCancelPromotion={hints.cancelPromotion}
-
-      {/* Tabuleiro de Xadrez */}
-      <div style={{ width: '100%', maxWidth: '560px' }}>
-        <Chessboard
-          position={fen}
-          onPieceDrop={handlePieceDrop}
-          boardOrientation="white"
-          arePiecesDraggable={isMyTurn && !isGameOver}
-          customBoardStyle={{
-            borderRadius: '8px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
-          }}
-
         />
       </div>
 

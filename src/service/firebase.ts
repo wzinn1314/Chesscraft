@@ -1,18 +1,13 @@
-
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
-import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getAnalytics, type Analytics } from "firebase/analytics";
-import { getDatabase, type Database } from "firebase/database";
-
-
 const firebaseConfig = {
   apiKey: "AIzaSyAT-f0NSIHFEaqedp8ErT7ZErMv3cGK1Ws",
   authDomain: "chesscraft-1.firebaseapp.com",
-  databaseURL: "https://chesscraft-1-default-rtdb.firebaseio.com",
+  // 2. URL do seu Realtime Database (essencial para conexões de xadrez)
+  databaseURL: "https://chesscraft-1-default-rtdb.firebaseio.com", 
   projectId: "chesscraft-1",
   storageBucket: "chesscraft-1.firebasestorage.app",
   messagingSenderId: "696371420412",
@@ -20,35 +15,12 @@ const firebaseConfig = {
   measurementId: "G-4DYFL7PD1D"
 };
 
-const canInitializeFirebase = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  try {
-    const testKey = '__chesscraft_firebase_probe__';
-    localStorage.setItem(testKey, '1');
-    localStorage.removeItem(testKey);
-    return true;
-  } catch {
-    return false;
-  }
-};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-let app: FirebaseApp | null = null;
-let database: Database | null = null;
-let analytics: Analytics | null = null;
+// Apenas inicializa analytics se estiver rodando no navegador (evita erros em SSR/Node)
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-try {
-  if (canInitializeFirebase()) {
-    app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
-    analytics = getAnalytics(app);
-    database = getDatabase(app);
-  }
-} catch (error) {
-  console.warn('Firebase unavailable in this browser context; app continues in local-only mode.', error);
-}
-
-
-
+// Export database and auth
 export const database = getDatabase(app);
 export const auth = getAuth(app);
-export { analytics, database };
-
